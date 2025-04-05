@@ -1,7 +1,14 @@
-body {
-    font-family: Arial, sans-serif;
+.varela-round-regular {
+    font-family: "Varela Round", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  body {
+    font-family: "Varela Round", sans-serif;
     background-color: whitesmoke;
 }
+  
 
 nav {
     background-color: #3b3937;
@@ -38,4 +45,8 @@ nav a:hover {
     color: #e6961e;
     font-size: 55px;
     margin-left: 20px;
+}
+
+p {
+
 }
