@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: whitesmoke;
+}
+
+nav {
+    background-color: #3b3937;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    justify-content: space-between;
+    gap: 20px;
+    
+}
+
+nav a {
+    float: right;
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    text-decoration: none;
+    justify-content: flex-end;
+    
+}
+
+nav .navLinks {
+    display: flex;
+    gap: 30px;
+    margin-right: 15px;
+}
+
+nav a:hover {
+    background-color: #e6961e;
+    color: black;
+}
+
+.name {
+    color: #e6961e;
+    font-size: 55px;
+    margin-left: 20px;
+}
