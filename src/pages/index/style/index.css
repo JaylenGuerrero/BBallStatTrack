@@ -13,6 +13,7 @@
 nav {
     background-color: #3b3937;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     overflow: hidden;
     justify-content: space-between;
@@ -47,6 +48,6 @@ nav a:hover {
     margin-left: 20px;
 }
 
-p {
-
+.name:hover {
+    color: white;
 }
