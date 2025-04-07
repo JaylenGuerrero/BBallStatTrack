@@ -67,3 +67,47 @@ color: white;
     text-decoration: none;
     font-size: 22px;
 }
+
+form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 5px;
+}
+form input {
+    margin: 5px;
+    padding: 7px;
+    
+}
+
+#sub {
+    justify-content: center;
+    background-color: #3b3937;
+    color: white;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: "Varela Round", sans-serif;
+}
+#sub:hover {
+    color: #e6961e;
+}
+#createA {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+}
+#createAccount {
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #3b3937;
+    color: white;
+    border-radius: 10px;
+    padding: 5px;
+    text-decoration: none;
+}
+#createAccount:hover {
+    color:#e6961e;
+}
