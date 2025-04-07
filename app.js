@@ -1,4 +1,6 @@
 const express = require('express');
+const mongoose = require('mongoose')
+const Account = require('./src/Account.js')
 const app = express();
 
 const port = 3000;
@@ -11,6 +13,10 @@ app.get('/', (req, res) => {
 
 app.get('/create', (req, res) => {
     res.sendFile(__dirname + '/src/pages/create/create.html');
+});
+
+app.get('/account', (req, res) => {
+    res.sendFile(__dirname + '/src/pages/account/account.html');
 });
 
 app.listen(port, () => {
