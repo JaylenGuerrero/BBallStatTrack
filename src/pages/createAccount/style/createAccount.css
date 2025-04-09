@@ -51,4 +51,20 @@
     .name:hover {
     color: white;
     }
+
+    #accountCreation {
+        margin-left: 1%;
+    }
+
+    #accountInfo {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #submit {
+        margin-top: 2%;
+    }
     

@@ -23,7 +23,9 @@ const database = new sqlite3.Database('./src/data/database.db');
 const sqlCreate = "CREATE TABLE IF NOT EXISTS accounts(" + 
                     "id INTEGER PRIMARY KEY," +
                     "username TEXT NOT NULL," + 
-                    "password TEXT NOT NULL)";
+                    "password TEXT NOT NULL," +
+                    "firstName TEXT NOT NULL," +
+                    "lastName TEXT NOT NULL)";
 database.exec(sqlCreate, (err) => {
     if (err) {
         console.error('Error creating table', err.message);
@@ -73,7 +75,38 @@ app.post('/login', (req, res) => {
             res.status(401).json({ message: 'Username not found'});
         }
         
+    })
+
 })
+
+app.post('/addAccount', (req, res) => {
+    const {firstName, lastName, username, password} = req.body;
+
+    const sqlUsernameQuery = "SELECT username FROM accounts WHERE username = ?";
+    const sqlInsert = "INSERT INTO accounts (username, password, firstName, lastName) VALUES (?, ?, ?, ?)";
+
+    const values = [username, password, firstName, lastName];
+
+    database.get(sqlUsernameQuery, [username], (err, row) => {
+        if (err) {
+            console.err('Error checking username availablity', err.message);
+            return res.status(500).json({ message: 'Internal server error'});
+        }
+        if (row) {
+            if (username === row.username) {
+                res.status(401).json({ message: 'Username not available'})
+            } else {
+                database.run(sqlInsert, values, function(err) {
+                    if (err) {
+                        return console.error("Insert error:", err.message);
+                    }
+                })
+                res.status(200).json({ message: 'Account Created'})
+            }
+        } else {
+            res.status(401).json({ message: 'Username not in database'});
+        }
+    })
 
 })
 
