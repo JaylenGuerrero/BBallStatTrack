@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial=scale=1.0"/>
+    <title>Account</title>
+    <meta name="description" content="Account page for BBallStatTrack"/>
+    <meta name="author" content="Jaylen Guerrero"/>
+    <link rel="stylesheet" href="/pages/createAccount/style/createAccount.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+
+</head>
+
+<body>
+    <nav>
+        <div class="name">BBallStatTrack</div>
+        <div class="navLinks">
+            <a href="/">Home</a>
+            <a href="/create">Create</a>
+            <a href="/stats">Stats</a>
+            <a href="/account">Account</a>
+            <a href="/about">About</a>
+    </nav>
+
+    <div id="accountCreation">
+        <p>Please enter information to create an account with us</p>
+        <form id="accountInfo">
+            <label for="firstName">First Name: </label>
+            <input id="firstName" type="text">
+            <label for="lastName">Last Name: </label>
+            <input id="lastName" type="text">
+            <label for="username">Username: </label>
+            <input id="username" type="text">
+            <label for="password">Password: </label>
+            <input id="password" type="password">
+            <label for="repassword">Retype Password: </label>
+            <input id="repassword" type="password">
+            <div id="matcherror"></div>
+            <input type="submit" id="submit" value="Create Account!">
+        </form>
+    </div>
+    <script>
+        document.getElementById('accountCreation').addEventListener('submit', async (e) => {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementId('lastName').value;
+            const username = document.getElementId('username').value;
+            const password = document.getElementId('password').value;
+            const repassword = document.getElementId('repassword').value;
+
+            const passMatch = "<p>Passwords do not match</p>";
+
+            if (password != repassword) {
+                document.getElementById('matcherror').innerHTML = passMatch;
+                return;
+            }
+
+            try {
+                const response = await fetch('/addAccount', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({firstName, lastName, username, password}),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    console.log("Account created successfully!")
+                } else {
+                    console.error("Account creation failed", result.message);
+                }
+
+            } catch (error) {
+                console.error("Server error:", error);
+            }
+            
+        })
+
+
+    </script>
+
+
+
+</body>
