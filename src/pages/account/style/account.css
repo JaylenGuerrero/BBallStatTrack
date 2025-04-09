@@ -81,6 +81,14 @@ form input {
     
 }
 
+form div {
+    margin-left: -5%;
+}
+
+#loginFail {
+    color: red;
+}
+
 #sub {
     justify-content: center;
     background-color: #3b3937;

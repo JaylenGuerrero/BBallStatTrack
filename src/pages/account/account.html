@@ -30,7 +30,7 @@
             Login or Create an Account with us
         </p>
         <p>Login</p>
-        <form>
+        <form id="login">
             <div>
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="Username">
@@ -41,7 +41,7 @@
             </div>
             <input id="sub" type="submit" value="Enter">
         </form>
-
+        <div id="loginMessage"></div>
     </div>
 
     <div id="createA">
@@ -50,4 +50,47 @@
 
 
 </body>
+<script>
+    document.getElementById('login').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({username, password}),
+            });
+
+            const result = await response.json();
+            const messageDiv = document.getElementById('loginMessage');
+            const loginFailed = "<p id=\"loginFail\">Login Failed, incorrect username or password</p>";
+
+            if (response.ok) {
+                console.log("Login successful for " + username);
+                console.log(result);
+                document.getElementById('username').value ='';
+                document.getElementById('password').value = '';
+                window.location.href = '/dashboard';
+
+            } else {
+                console.log("Login failed", result.message);
+                messageDiv.innerHTML = loginFailed;
+                document.getElementById('username').value ='';
+                document.getElementById('password').value = '';
+
+
+            }} catch (error) {
+                console.error('Error: ', error);
+                document.getElementById('username').value ='';
+                document.getElementById('password').value = '';
+
+            }
+    });
+
+</script>
 </html>
