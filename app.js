@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 
 const app = express();
 
+var teamid = 0;
+
 const port = 3000;
 
 app.use(express.static('src'));
@@ -45,12 +47,24 @@ app.get('/create', (req, res) => {
 });
 
 app.get('/account', (req, res) => {
-    res.sendFile(__dirname + '/src/pages/account/account.html');
+    if (req.session.user) {
+        res.sendFile(__dirname + '/src/pages/dash/dashboard.html');
+    } else {
+        res.sendFile(__dirname + '/src/pages/account/account.html');
+    }
 });
 
 app.get('/createAccount', (req, res) => {
     res.sendFile(__dirname + '/src/pages/createAccount/createAccount.html');
 });
+
+app.get('/teams', (req, res) => {
+    res.sendFile(__dirname + '/src/pages/create/teams/teams.html');
+})
+
+app.get('/dashboard', isAuth, (req, res) => {
+    res.sendFile(__dirname + "/src/pages/dash/dashboard.html");
+})
 
 
 app.use(express.json());
@@ -58,7 +72,7 @@ app.use(express.json());
 app.post('/login', (req, res) => {
     const {username, password} = req.body;
 
-    const sqlLoginQuery = "SELECT password FROM accounts WHERE username = ?";
+    const sqlLoginQuery = "SELECT * FROM accounts WHERE username = ?";
 
     database.get(sqlLoginQuery, [username], (err, row) => {
         if (err) {
@@ -67,6 +81,14 @@ app.post('/login', (req, res) => {
         }
         if (row) {
             if (password === row.password) {
+                
+                req.session.user = {
+                    // id: row.id,
+                    username: row.username, 
+                    // firstName: row.firstName,
+                    // lastName: row.lastname
+                };
+                console.log("Session after login: ", req.session);
                 res.status(200).json({ message: 'Login successful'});
             } else {
                 res.status(401).json({ message: 'Incorrect username or password'})
@@ -89,29 +111,70 @@ app.post('/addAccount', (req, res) => {
 
     database.get(sqlUsernameQuery, [username], (err, row) => {
         if (err) {
-            console.err('Error checking username availablity', err.message);
+            console.error('Error checking username availablity', err.message);
             return res.status(500).json({ message: 'Internal server error'});
         }
         if (row) {
-            if (username === row.username) {
-                res.status(401).json({ message: 'Username not available'})
-            } else {
-                database.run(sqlInsert, values, function(err) {
-                    if (err) {
-                        return console.error("Insert error:", err.message);
-                    }
-                })
-                res.status(200).json({ message: 'Account Created'})
-            }
+            res.status(401).json({ message: 'Username not available'})
         } else {
-            res.status(401).json({ message: 'Username not in database'});
+            database.run(sqlInsert, values, function(err) {
+                if (err) {
+                    console.error('Error inserting new account:', err.message);
+                    return res.status(500).json({ message: 'Server error'});
+                }
+                res.status(201).json({ message: 'Account Created'});
+            });
+
+            
         }
     })
 
 })
 
+app.post('/addTeam', (req, res) => {
+    const {teamName, divName, teamCity, teamState, coachName} = req.body;
+
+    const sqlCreate = `CREATE TABLE IF NOT EXISTS ${teamName + teamid} ( 
+    id INTEGER PRIMARY KEY, 
+    teamName TEXT NOT NULL, 
+    divName TEXT, 
+    city TEXT NOT NULL,
+    state TEXT NOT NULL, 
+    coachName TEXT NOT NULL)`;
+    const sqlInsert = `INSERT INTO ${teamName + teamid} (teamName, divName, city, state, coachName)
+    VALUES (?, ?, ?, ?, ?)`;
+
+    const values = [teamName, divName, teamCity, teamState, coachName];
+
+    database.run(sqlCreate, (err) => {
+        if (err) {
+            console.error('Error creating team table: ', err.message);
+            return res.statuc(500).json({ message: 'Error creating table'});
+        }
+        database.run(sqlInsert, values, function (err) {
+            if (err) {
+                console.error('Error inserting team data: ', err.message);
+                return res.status(500).json({ message: 'Error inserting team data'});
+            }
+            res.status(201).json({ message: 'Team created successfully'});
+            teamid = teamid + 1;
+            
+            
+        });
+    });
+
+});
 
 
+
+
+function isAuth(req, res, next) {
+    if (req.session.user) {
+        return next();
+    } else {
+        return res.status(401).json({ message: 'Unauthorized Account'});
+    }
+}
 
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
