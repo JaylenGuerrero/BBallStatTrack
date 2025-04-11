@@ -41,36 +41,18 @@
     background-color: #e6961e;
     color: black;
     }
-    
     .name {
-    color: #e6961e;
-    font-size: 55px;
-    margin-left: 20px;
+        color: #e6961e;
+        font-size: 55px;
+        margin-left: 20px;
     }
-    
+        
     .name:hover {
-    color: white;
+        color: white;
     }
 
-    #please {
+    #welcome {
         display: flex;
         align-items: center;
         justify-content: center;
     }
-
-    #accountCreation {
-        margin-left: 1%;
-    }
-
-    #accountInfo {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-    }
-
-    #submit {
-        margin-top: 2%;
-    }
-    

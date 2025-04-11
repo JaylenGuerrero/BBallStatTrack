@@ -26,7 +26,9 @@
     </nav>
 
     <div id="accountCreation">
-        <p>Please enter information to create an account with us</p>
+        <div id="please">
+            <p>Please enter information to create an account with us</p>
+        </div>
         <form id="accountInfo">
             <label for="firstName">First Name: </label>
             <input id="firstName" type="text">
@@ -44,16 +46,21 @@
     </div>
     <script>
         document.getElementById('accountCreation').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
             const firstName = document.getElementById('firstName').value;
-            const lastName = document.getElementId('lastName').value;
-            const username = document.getElementId('username').value;
-            const password = document.getElementId('password').value;
-            const repassword = document.getElementId('repassword').value;
+            const lastName = document.getElementById('lastName').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const repassword = document.getElementById('repassword').value;
 
             const passMatch = "<p>Passwords do not match</p>";
+            const messageDiv = document.getElementById('matcherror');
 
             if (password != repassword) {
-                document.getElementById('matcherror').innerHTML = passMatch;
+                messageDiv.innerHTML = passMatch;
+                document.getElementById('password').value = '';
+                document.getElementById('repassword').value = '';
                 return;
             }
 
@@ -70,6 +77,7 @@
 
                 if (response.ok) {
                     console.log("Account created successfully!")
+                    window.location.href = '/login';
                 } else {
                     console.error("Account creation failed", result.message);
                 }

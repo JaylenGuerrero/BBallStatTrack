@@ -68,7 +68,7 @@
 
             const result = await response.json();
             const messageDiv = document.getElementById('loginMessage');
-            const loginFailed = "<p id=\"loginFail\">Login Failed, incorrect username or password</p>";
+            const loginFailed = "<p id=\"loginFail\">Login Failed. Incorrect username or password</p>";
 
             if (response.ok) {
                 console.log("Login successful for " + username);
@@ -80,7 +80,6 @@
             } else {
                 console.log("Login failed", result.message);
                 messageDiv.innerHTML = loginFailed;
-                document.getElementById('username').value ='';
                 document.getElementById('password').value = '';
 
 
