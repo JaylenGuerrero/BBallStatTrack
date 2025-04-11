@@ -46,6 +46,8 @@ app.get('/create', (req, res) => {
     res.sendFile(__dirname + '/src/pages/create/create.html');
 });
 
+
+
 app.get('/account', (req, res) => {
     if (req.session.user) {
         res.sendFile(__dirname + '/src/pages/dash/dashboard.html');
@@ -58,16 +60,32 @@ app.get('/createAccount', (req, res) => {
     res.sendFile(__dirname + '/src/pages/createAccount/createAccount.html');
 });
 
-app.get('/teams', (req, res) => {
-    res.sendFile(__dirname + '/src/pages/create/teams/teams.html');
+app.get('/createTeams', (req, res) => {
+    res.sendFile(__dirname + '/src/pages/create/createTeams/createTeams.html');
 })
 
 app.get('/dashboard', isAuth, (req, res) => {
     res.sendFile(__dirname + "/src/pages/dash/dashboard.html");
 })
 
+app.get('/teams', (req, res) => {
+    res.sendFile(__dirname + "/src/pages/teams/teams.html");
+})
+
+
+
 
 app.use(express.json());
+
+app.post('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if (err) {
+            return res.status(500).json({ message: 'Logout failed'});
+        }
+        res.clearCookie('connect.sid');
+        res.json({ message: 'Successful logout'});
+    })
+})
 
 app.post('/login', (req, res) => {
     const {username, password} = req.body;
@@ -123,6 +141,7 @@ app.post('/addAccount', (req, res) => {
                     return res.status(500).json({ message: 'Server error'});
                 }
                 res.status(201).json({ message: 'Account Created'});
+                
             });
 
             
@@ -131,6 +150,7 @@ app.post('/addAccount', (req, res) => {
 
 })
 
+const teamDatabase = new sqlite3.Database('./src/data/teamDatabase.db');
 app.post('/addTeam', (req, res) => {
     const {teamName, divName, teamCity, teamState, coachName} = req.body;
 
@@ -146,12 +166,12 @@ app.post('/addTeam', (req, res) => {
 
     const values = [teamName, divName, teamCity, teamState, coachName];
 
-    database.run(sqlCreate, (err) => {
+    teamDatabase.run(sqlCreate, (err) => {
         if (err) {
             console.error('Error creating team table: ', err.message);
-            return res.statuc(500).json({ message: 'Error creating table'});
+            return res.status(500).json({ message: 'Error creating table'});
         }
-        database.run(sqlInsert, values, function (err) {
+        teamDatabase.run(sqlInsert, values, function (err) {
             if (err) {
                 console.error('Error inserting team data: ', err.message);
                 return res.status(500).json({ message: 'Error inserting team data'});
@@ -164,9 +184,6 @@ app.post('/addTeam', (req, res) => {
     });
 
 });
-
-
-
 
 function isAuth(req, res, next) {
     if (req.session.user) {
