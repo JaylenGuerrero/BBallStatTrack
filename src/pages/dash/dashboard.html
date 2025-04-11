@@ -7,6 +7,7 @@
     <meta name="description" content="Dashboard page for BBallStatTrack"/>
     <meta name="author" content="Jaylen Guerrero"/>
     <link rel="stylesheet" href="/pages/dash/style/dashboard.css">
+    <link rel="stylesheet" href="/pages/style/nav.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,8 +22,38 @@
             <a href="/">Home</a>
             <a href="/create">Create</a>
             <a href="/stats">Stats</a>
+            <a href="/teams">Teams</a>
             <a href="/account">Account</a>
             <a href="/about">About</a>
     </nav>
-<p id="welcome">Welcome to your dashboard</p>
+    <div class="header">
+        <input type="button" id="logout" value="Log Out">
+    </div>
+    <p id="welcome">Welcome to your dashboard</p>
 </body>
+
+<script>
+    document.getElementById('logout').addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+            }});
+
+            const result = await response.json();
+
+            if (response.ok) {
+                    console.log("Logout successfully!")
+                    window.location.href = '/account';
+                } else {
+                    console.error("Logout failed", result.message);
+                }
+        
+        } catch (error) {
+            console.error("Server error:", error);
+        }
+    })
+</script>
