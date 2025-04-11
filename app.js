@@ -5,6 +5,8 @@ const bcrypt = require('bcrypt');
 
 const app = express();
 
+var teamid = 0;
+
 const port = 3000;
 
 app.use(express.static('src'));
@@ -128,6 +130,40 @@ app.post('/addAccount', (req, res) => {
     })
 
 })
+
+app.post('/addTeam', (req, res) => {
+    const {teamName, divName, teamCity, teamState, coachName} = req.body;
+
+    const sqlCreate = `CREATE TABLE IF NOT EXISTS ${teamName + teamid} ( 
+    id INTEGER PRIMARY KEY, 
+    teamName TEXT NOT NULL, 
+    divName TEXT, 
+    city TEXT NOT NULL,
+    state TEXT NOT NULL, 
+    coachName TEXT NOT NULL)`;
+    const sqlInsert = `INSERT INTO ${teamName + teamid} (teamName, divName, city, state, coachName)
+    VALUES (?, ?, ?, ?, ?)`;
+
+    const values = [teamName, divName, teamCity, teamState, coachName];
+
+    database.run(sqlCreate, (err) => {
+        if (err) {
+            console.error('Error creating team table: ', err.message);
+            return res.statuc(500).json({ message: 'Error creating table'});
+        }
+        database.run(sqlInsert, values, function (err) {
+            if (err) {
+                console.error('Error inserting team data: ', err.message);
+                return res.status(500).json({ message: 'Error inserting team data'});
+            }
+            res.status(201).json({ message: 'Team created successfully'});
+            teamid = teamid + 1;
+            
+            
+        });
+    });
+
+});
 
 
 

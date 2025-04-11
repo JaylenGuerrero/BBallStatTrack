@@ -27,30 +27,79 @@
     <p id="welcome">Welcome to Create a Team. Here you can create a team with all the team's information and keep track of the stats of players on the team.</p>
 
     <div id="input1">
-        <div id="labels">
-            <label for="teamName">Team Name: </label>
-        </div>
-        <div id="inputs">
-            <input type="text" id="teamName" placeholder="Team Name">
-        </div>
-        <div id="labels">
-            <label for="divisionName">Division Name: </label>
-        </div>
-        <div id="inputs">
-            <input type="text" id="divisionName" placeholder="Division Name">
-        </div>  
-        <div id="labels">
-            <label for="location">Location: </label>
-        </div>
-        <div id="inputs">
-            <input type="text" id="location" placeholder="Location">
-        </div>  
-        <div id="labels">
-            <label for="coachName">Head Coach Name: </label>
-        </div>
-        <div id="inputs">
-            <input type="text" id="coachName" placeholder="Coach's Name">
-        </div> 
+        <form>
+            <div id="labels">
+                <label for="teamName">Team Name: </label>
+            </div>
+            <div id="inputs">
+                <input type="text" id="teamName" placeholder="Team Name">
+            </div>
+            <div id="labels">
+                <label for="divisionName">Division Name: </label>
+            </div>
+            <div id="inputs">
+                <input type="text" id="divisionName" placeholder="Division Name">
+            </div>  
+            <div id="labels">
+                <label for="city">City: </label>
+            </div>
+            <div id="inputs">
+                <input type="text" id="city" placeholder="City">
+            </div>  
+            <div id="labels">
+                <label for="state">State: </label>
+            </div>
+            <div id="inputs">
+                <input type="text" id="state" placeholder="State">
+            </div> 
+            <div id="labels">
+                <label for="coachName">Head Coach Name: </label>
+            </div>
+            <div id="inputs">
+                <input type="text" id="coachName" placeholder="Coach's Name">
+                <input type="submit" id="submit" value="Create Team">
+            </div> 
+    </form>
     </div>
+    <script>
+        document.getElementById('input1').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const teamName = document.getElementById('teamName').value;
+        const divName = document.getElementById('divisionName').value;
+        const teamCity = document.getElementById('city').value;
+        const teamState = document.getElementById('state').value;
+        const coachName = document.getElementById('coachName').value;
+
+        try {
+
+            const response = await fetch('/addTeam', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({teamName, divName, teamCity, teamState, coachName}),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log("Team created successfully");
+            } else {
+                console.error("Error creating team", result.message);
+            }
+
+        } catch (error) {
+            console.error("Server error: ", error);
+        }
+
+
+
+        });
+
+
+
+
+    </script>
 
 </body>
