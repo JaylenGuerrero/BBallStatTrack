@@ -60,13 +60,19 @@ app.get('/createAccount', (req, res) => {
     res.sendFile(__dirname + '/src/pages/createAccount/createAccount.html');
 });
 
-app.get('/teams', (req, res) => {
-    res.sendFile(__dirname + '/src/pages/create/teams/teams.html');
+app.get('/createTeams', (req, res) => {
+    res.sendFile(__dirname + '/src/pages/create/createTeams/createTeams.html');
 })
 
 app.get('/dashboard', isAuth, (req, res) => {
     res.sendFile(__dirname + "/src/pages/dash/dashboard.html");
 })
+
+app.get('/teams', (req, res) => {
+    res.sendFile(__dirname + "/src/pages/teams/teams.html");
+})
+
+
 
 
 app.use(express.json());
