@@ -154,14 +154,14 @@ const teamDatabase = new sqlite3.Database('./src/data/teamDatabase.db');
 app.post('/addTeam', (req, res) => {
     const {teamName, divName, teamCity, teamState, coachName} = req.body;
 
-    const sqlCreate = `CREATE TABLE IF NOT EXISTS ${teamName + teamid} ( 
-    id INTEGER PRIMARY KEY, 
+    const sqlCreate = `CREATE TABLE IF NOT EXISTS Teams ( 
+    id INTEGER PRIMARY KEY AUTOINCREMENT, 
     teamName TEXT NOT NULL, 
     divName TEXT, 
     city TEXT NOT NULL,
     state TEXT NOT NULL, 
     coachName TEXT NOT NULL)`;
-    const sqlInsert = `INSERT INTO ${teamName + teamid} (teamName, divName, city, state, coachName)
+    const sqlInsert = `INSERT INTO Teams (teamName, divName, city, state, coachName)
     VALUES (?, ?, ?, ?, ?)`;
 
     const values = [teamName, divName, teamCity, teamState, coachName];

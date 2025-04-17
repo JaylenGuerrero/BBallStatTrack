@@ -32,3 +32,8 @@
     margin-top: 10px;
     border-radius: 5px;
 }
+#message {
+    color:green;
+    display: flex;
+    justify-content: center;
+}
