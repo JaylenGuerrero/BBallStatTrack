@@ -21,7 +21,7 @@
             <a href="/">Home</a>
             <a href="/create">Create</a>
             <a href="/stats">Stats</a>
-            <a href="/teams">Teams</a>
+            <a href="/teamsPage">Teams</a>
             <a href="/account">Account</a>
             <a href="/about">About</a>
     </nav>
@@ -61,6 +61,7 @@
                 <input type="text" id="coachName" placeholder="Coach's Name">
                 <input type="submit" id="submit" value="Create Team">
             </div> 
+            <div id="message"></div>
     </form>
     </div>
     <script>
@@ -87,6 +88,12 @@
 
             if (response.ok) {
                 console.log("Team created successfully");
+                document.getElementById("teamName").value = "";
+                document.getElementById("divisionName").value = "";
+                document.getElementById("city").value = "";
+                document.getElementById("state").value = "";
+                document.getElementById("coachName").value = "";
+                document.getElementById("message").innerHTML = "<p>Team Created Successfully</p>";
             } else {
                 console.error("Error creating team", result.message);
             }
