@@ -22,7 +22,48 @@
             <a href="/">Home</a>
             <a href="/create">Create</a>
             <a href="/stats">Stats</a>
-            <a href="/teams">Teams</a>
+            <a href="/teamsPage">Teams</a>
             <a href="/account">Account</a>
             <a href="/about">About</a>
     </nav>
+
+    <h1>Current Teams</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Team Name</th>
+                <th>Division</th>
+                <th>City</th>
+                <th>State</th>
+                <th>Coach</th>
+            </tr>
+        </thead>
+        <tbody id="teamTableBody">
+        </tbody>
+    </table>
+    
+    <script>
+        fetch('/teams')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('teamTableBody');
+            data.forEach(team => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                 <td>${team.id}</td>
+                    <td>${team.teamName}</td>
+                    <td>${team.divName}</td>
+                    <td>${team.city}</td>
+                    <td>${team.state}</td>
+                    <td>${team.coachName}</td>
+                `;
+                tableBody.appendChild(row);
+            })
+        })
+        .catch(err => {
+            console.error('Error fetching teams: ', err);
+        })
+    </script>
+
+</body>

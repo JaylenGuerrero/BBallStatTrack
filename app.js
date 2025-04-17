@@ -68,9 +68,33 @@ app.get('/dashboard', isAuth, (req, res) => {
     res.sendFile(__dirname + "/src/pages/dash/dashboard.html");
 })
 
+const path = require("path");
+
+app.get('/teamsPage', (req, res) => {
+    res.sendFile(path.join(__dirname, 'src', 'pages', 'teams', 'teams.html'));
+});
+
 app.get('/teams', (req, res) => {
-    res.sendFile(__dirname + "/src/pages/teams/teams.html");
-})
+    const sql = "SELECT * FROM Teams";
+    teamDatabase.all(sql, [], (err, rows) => {
+        if (err) {
+            console.error('Error fetching teams:', err.message);
+            return res.status(500).json({ message: 'Failed to fetch teams' });
+        }
+        res.json(rows);
+    });
+});
+
+// app.get('/teamsPage', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'src', 'pages', 'teams.html'));
+// });
+
+
+
+
+
+
+
 
 
 
