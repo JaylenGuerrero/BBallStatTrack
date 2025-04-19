@@ -1,0 +1,51 @@
+
+#welcome {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#input1 #labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+#input1 #inputs {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 5px;
+}
+
+#input1 #inputs input {
+    padding: 5px;
+    font-size: 15px;
+    text-align: center;
+}
+#input1 #inputs select {
+    padding: 5px;
+    font-size: 15px;
+    text-align: center;
+}
+#input1 #submit {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+#input1 #submit input{
+    text-align: center;
+    font-size: 15px;
+    margin-top: 10px;
+    border-radius: 5px;
+    padding: 10px;
+}
+#message {
+    color:green;
+    display: flex;
+    justify-content: center;
+}

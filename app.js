@@ -89,6 +89,7 @@ app.get('/createPlayer', (req, res) => {
     res.sendFile(__dirname + "/src/pages/create/createPlayer/createPlayer.html");
 })
 
+
 app.use(express.json());
 
 app.post('/logout', (req, res) => {
@@ -196,6 +197,42 @@ app.post('/addTeam', (req, res) => {
             
         });
     });
+
+});
+
+app.post('/addPlayer', (req, res) => {
+    const {firstName, lastName, position, height, weight, teamId} = req.body;
+
+    const sqlCreatePlayer = `CREATE TABLE IF NOT EXISTS Players (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
+    position TEXT NOT NULL,
+    height TEXT NOT NULL,
+    weight DOUBLE NOT NULL,
+    teamId INTEGER NOT NULL,
+    FOREIGN KEY (teamId) REFERENCES Teams(id))`;
+
+    const sqlPlayerInsert = `INSERT INTO Players (firstName, lastName, position, height, weight, teamId)
+    VALUES (?, ?, ?, ?, ?, ?)`;
+    const values = [firstName, lastName, position, height, weight, teamId];
+
+    teamDatabase.run(sqlCreatePlayer, (err) => {
+        if (err) {
+            console.error('Error creating Players table: ', err.message);
+            return res.status(500).json({ message: 'Error creating Players table'});
+        }
+
+        teamDatabase.run(sqlPlayerInsert, values, function(err) {
+            if (err) {
+                console.error('Error inserting player:', err.message);
+                return res.status(500).json({ message: 'Error inserting player'});
+            }
+            res.status(201).json({ message: 'Player added successfully'});
+        })
+
+    })
+
 
 });
 

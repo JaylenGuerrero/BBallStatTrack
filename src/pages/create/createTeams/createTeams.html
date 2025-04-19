@@ -73,6 +73,10 @@
         const teamCity = document.getElementById('city').value;
         const teamState = document.getElementById('state').value;
         const coachName = document.getElementById('coachName').value;
+        if (!teamName || !divName || !teamCity || !teamState || !coachName) {
+            document.getElementById("message").innerHTML = "<p>Error: All fields must be filled.</p>";
+            return;
+        }
 
         try {
 

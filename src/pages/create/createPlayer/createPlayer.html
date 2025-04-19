@@ -73,11 +73,71 @@
             <div id="inputs">
                 <input type="text" id="teamId" placeholder="Team ID">
             </div> 
-            <div>
-                <input type="submit" id="submit" value="Create Team">
+            <div  id="submit">
+                <input type="submit" value="Create Player">
             </div>
             <div id="message"></div>
     </form>
+
+    <script>
+
+document.getElementById('input1').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const position = document.getElementById('position').value;
+        const height = document.getElementById('height').value;
+        const weight = document.getElementById('weight').value;
+        const teamId = document.getElementById('teamId').value;
+
+        if (!firstName || !lastName || !position || !height || !weight || !teamId) {
+            document.getElementById("message").innerHTML = "<p>Error: All fields must be filled.</p>";
+            return;
+        }
+
+        try {
+
+            const response = await fetch('/addPlayer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({firstName, lastName, position, height, weight, teamId}),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log("Player created successfully");
+                document.getElementById("firstName").value = "";
+                document.getElementById("lastName").value = "";
+                document.getElementById("position").value = "";
+                document.getElementById("height").value = "";
+                document.getElementById("weight").value = "";
+                document.getElementById("teamId").value = "";
+                document.getElementById("message").innerHTML = "<p>Player Created Successfully</p>";
+            } else {
+                console.error("Error creating team", result.message);
+                console.log("Team created successfully");
+                document.getElementById("firstName").value = "";
+                document.getElementById("lastName").value = "";
+                document.getElementById("position").value = "";
+                document.getElementById("height").value = "";
+                document.getElementById("weight").value = "";
+                document.getElementById("teamId").value = "";
+                document.getElementById("message").innerHTML = "<p>Error: Player Could Not Be Created</p>";
+            }
+
+        } catch (error) {
+            console.error("Server error: ", error);
+        }
+
+
+
+        });
+
+    </script>
 
    
 
