@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial=scale=1.0"/>
+    <title>Stats</title>
+    <meta name="description" content="Stats page for BBallStatTrack"/>
+    <meta name="author" content="Jaylen Guerrero"/>
+    <link rel="stylesheet" href="/pages/stats/style/stats.css">
+    <link rel="stylesheet" href="/pages/style/nav.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <nav>
+        <div class="name">BBallStatTrack</div>
+        <div class="navLinks">
+            <a href="/">Home</a>
+            <a href="/create">Create</a>
+            <a href="/stats">Stats</a>
+            <a href="/teamsPage">Teams</a>
+            <a href="/account">Account</a>
+            <a href="/about">About</a>
+    </nav>
+
+
+
+
+    <h1>Player Stats</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Team</th>
+                <th>Position</th>
+                <th>Height</th>
+                <th>Weight</th>
+            </tr>
+        </thead>
+        <tbody id="playerBody">
+        </tbody>
+    </table>
+    
+    <script>
+        fetch('/playerStats')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.getElementById('playerBody');
+            data.forEach(player => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${player.firstName}</td>
+                    <td>${player.lastName}</td>
+                    <td>${player.teamName}</td>
+                    <td>${player.position}</td>
+                    <td>${player.height}</td>
+                    <td>${player.weight}</td>
+                `;
+                tableBody.appendChild(row);
+            })
+        })
+        .catch(err => {
+            console.error('Error fetching teams: ', err);
+        })
+    </script>
+
+</body>

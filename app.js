@@ -19,7 +19,6 @@ app.use(session({
 }));
 
 
-// const { DatabaseSync } = require('sqlite3');
 const database = new sqlite3.Database('./src/data/database.db');
 
 const sqlCreate = "CREATE TABLE IF NOT EXISTS accounts(" + 
@@ -68,6 +67,10 @@ app.get('/dashboard', isAuth, (req, res) => {
     res.sendFile(__dirname + "/src/pages/dash/dashboard.html");
 })
 
+app.get('/stats', (req, res) => {
+    res.sendFile(__dirname + "/src/pages/stats/stats.html");
+})
+
 const path = require("path");
 
 app.get('/teamsPage', (req, res) => {
@@ -84,6 +87,29 @@ app.get('/teams', (req, res) => {
         res.json(rows);
     });
 });
+
+app.get('/playerStats', (req, res) => {
+    const sqlPlayer = `
+        SELECT 
+            Players.id, 
+            Players.firstName, 
+            Players.lastName, 
+            Players.position, 
+            Players.height, 
+            Players.weight, 
+            Teams.teamName 
+        FROM Players
+        JOIN Teams ON Players.teamId = Teams.id
+    `;
+    teamDatabase.all(sqlPlayer, [], (err, rows) => {
+        if (err) {
+            console.error('Error fetching player stats:', err.message);
+            return res.status(500).json({ message: 'Failed to fetch players'});
+        }
+        res.json(rows);
+
+    });
+})
 
 app.get('/createPlayer', (req, res) => {
     res.sendFile(__dirname + "/src/pages/create/createPlayer/createPlayer.html");
