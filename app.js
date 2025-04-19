@@ -85,19 +85,9 @@ app.get('/teams', (req, res) => {
     });
 });
 
-// app.get('/teamsPage', (req, res) => {
-//     res.sendFile(path.join(__dirname, 'src', 'pages', 'teams.html'));
-// });
-
-
-
-
-
-
-
-
-
-
+app.get('/createPlayer', (req, res) => {
+    res.sendFile(__dirname + "/src/pages/create/createPlayer/createPlayer.html");
+})
 
 app.use(express.json());
 
