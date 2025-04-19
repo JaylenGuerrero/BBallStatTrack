@@ -6,7 +6,7 @@
     <title>Account</title>
     <meta name="description" content="Teams page for BBallStatTrack"/>
     <meta name="author" content="Jaylen Guerrero"/>
-    <link rel="stylesheet" href="/pages/teams/style/createAccount.css">
+    <link rel="stylesheet" href="/pages/teams/style/teams.css">
     <link rel="stylesheet" href="/pages/style/nav.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -31,11 +31,10 @@
     <table border="1">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>Team Name</th>
-                <th>Division</th>
                 <th>City</th>
                 <th>State</th>
+                <th>Division</th>
                 <th>Coach</th>
             </tr>
         </thead>
@@ -51,11 +50,10 @@
             data.forEach(team => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                 <td>${team.id}</td>
                     <td>${team.teamName}</td>
-                    <td>${team.divName}</td>
                     <td>${team.city}</td>
                     <td>${team.state}</td>
+                    <td>${team.divName}</td>
                     <td>${team.coachName}</td>
                 `;
                 tableBody.appendChild(row);
