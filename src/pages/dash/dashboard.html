@@ -27,7 +27,9 @@
             <a href="/about">About</a>
     </nav>
     <div class="header">
+        <input type="button" id="resetDb" value="Reset Databases">
         <input type="button" id="logout" value="Log Out">
+        
     </div>
     <p id="welcome">Welcome to your dashboard</p>
 </body>
@@ -46,7 +48,7 @@
             const result = await response.json();
 
             if (response.ok) {
-                    console.log("Logout successfully!")
+                    console.log("Logout successfully!");
                     window.location.href = '/account';
                 } else {
                     console.error("Logout failed", result.message);
@@ -55,5 +57,29 @@
         } catch (error) {
             console.error("Server error:", error);
         }
+    })
+
+    document.getElementById('resetDb').addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        try {
+            const response = await fetch('/resetDatabase', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+            }});
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log("Databases clear successfully");
+                window.location.href = '/account';
+            } else {
+                console.error("Error while clearing database", result.message);
+            }
+
+        } catch (error) {
+            console.error("Server Error: ", error);
+        }
+
     })
 </script>

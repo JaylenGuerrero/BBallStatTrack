@@ -262,6 +262,40 @@ app.post('/addPlayer', (req, res) => {
 
 });
 
+app.post('/resetDatabase', (req, res) => {
+    const sqlClearPlayer = "DELETE FROM Players";
+    const sqlClearTeam = "DELETE FROM Teams";
+    const sqlClearSeq = "DELETE FROM sqlite_sequence WHERE name='Teams';DELETE FROM sqlite_sequence WHERE name='Players'";
+
+    teamDatabase.run(sqlClearTeam, (err) => {
+        if (err) {
+            console.error('Error clearing Teams table: ', err.message);
+            return res.status(500).json({ message: 'Error clearing Teams table'});
+        }
+
+        teamDatabase.run(sqlClearPlayer, (err) => {
+            if (err) {
+                console.error('Error clearing players table');
+                return res.status(500).json({ message: 'Error clearing players from table'});
+            }
+
+            teamDatabase.exec(sqlClearSeq, (err) => {
+                if (err) {
+                    console.error("Error clearing sequence:", err.message);
+                    return res.status(500).json({ message: 'Error clearing sequence'});
+                }
+
+                res.status(201).json({ message: 'Database cleared successfully'});
+            })
+
+
+
+            
+        })
+        
+    })
+})
+
 function isAuth(req, res, next) {
     if (req.session.user) {
         return next();
