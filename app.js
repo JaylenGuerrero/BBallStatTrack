@@ -45,7 +45,9 @@ app.get('/create', (req, res) => {
     res.sendFile(__dirname + '/src/pages/create/create.html');
 });
 
-
+app.get('/season', (req, res) => {
+    res.sendFile(__dirname + '/src/pages/create/seasons/season.html');
+})
 
 app.get('/account', (req, res) => {
     if (req.session.user) {
