@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial=scale=1.0"/>
-    <title>Account</title>
-    <meta name="description" content="Teams page for BBallStatTrack"/>
+    <title>Stats</title>
+    <meta name="description" content="Stats page for BBallStatTrack"/>
     <meta name="author" content="Jaylen Guerrero"/>
-    <link rel="stylesheet" href="/pages/teams/style/teams.css">
+    <link rel="stylesheet" href="/pages/stats/style/stats.css">
     <link rel="stylesheet" href="/pages/style/nav.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
 
 </head>
-
 <body>
     <nav>
         <div class="name">BBallStatTrack</div>
@@ -27,34 +26,39 @@
             <a href="/about">About</a>
     </nav>
 
-    <h1>Current Teams</h1>
+
+
+
+    <h1>Player Stats</h1>
     <table border="1">
         <thead>
             <tr>
-                <th>Team Name</th>
-                <th>City</th>
-                <th>State</th>
-                <th>Division</th>
-                <th>Coach</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Team</th>
+                <th>Position</th>
+                <th>Height</th>
+                <th>Weight</th>
             </tr>
         </thead>
-        <tbody id="teamTableBody">
+        <tbody id="playerBody">
         </tbody>
     </table>
     
     <script>
-        fetch('/teams')
+        fetch('/playerStats')
         .then(response => response.json())
         .then(data => {
-            const tableBody = document.getElementById('teamTableBody');
-            data.forEach(team => {
+            const tableBody = document.getElementById('playerBody');
+            data.forEach(player => {
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td>${team.teamName}</td>
-                    <td>${team.city}</td>
-                    <td>${team.state}</td>
-                    <td>${team.divName}</td>
-                    <td>${team.coachName}</td>
+                    <td>${player.firstName}</td>
+                    <td>${player.lastName}</td>
+                    <td>${player.teamName}</td>
+                    <td>${player.position}</td>
+                    <td>${player.height}</td>
+                    <td>${player.weight}</td>
                 `;
                 tableBody.appendChild(row);
             })

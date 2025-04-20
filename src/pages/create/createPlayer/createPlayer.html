@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial=scale=1.0"/>
+    <title>Create a Player</title>
+    <meta name="description" content="Create player page for BBallStatTrack"/>
+    <meta name="author" content="Jaylen Guerrero"/>
+    <link rel="stylesheet" href="/pages/create/createPlayer/style/createPlayer.css">
+    <link rel="stylesheet" href="/pages/style/nav.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <nav>
+        <div class="name">BBallStatTrack</div>
+        <div class="navLinks">
+            <a href="/">Home</a>
+            <a href="/create">Create</a>
+            <a href="/stats">Stats</a>
+            <a href="/teamsPage">Teams</a>
+            <a href="/account">Account</a>
+            <a href="/about">About</a>
+    </nav>
+
+    <p id="welcome">Welcome to Create a Player. Here you can create a player and add them to a team.</p>
+
+    <div id="input1">
+        <form>
+            <div id="labels">
+                <label for="firstName">Player's First Name: </label>
+            </div>
+            <div id="inputs">
+                <input type="text" id="firstName" placeholder="First Name">
+            </div>
+            <div id="labels">
+                <label for="lastName">Player's Last Name: </label>
+            </div>
+            <div id="inputs">
+                <input type="text" id="lastName" placeholder="Last Name">
+            </div>  
+            <div id="labels">
+                <label for="position">Position: </label>
+            </div>
+            <div id="inputs">
+                <select id="position" placeholder="Position">
+                    <option value="">-- Select Position --</option>
+                    <option value="PG">PG</option>
+                    <option value="SG">SG</option>
+                    <option value="SF">SF</option>
+                    <option value="PF">PF</option>
+                    <option value="C">C</option>
+                </select>
+            </div>  
+            <div id="labels">
+                <label for="height">Height: </label>
+            </div>
+            <div id="inputs">
+                <input type="text" id="height" placeholder="Player Height">
+            </div> 
+            <div id="labels">
+                <label for="weight">Weight: </label>
+            </div>
+            <div id="inputs">
+                <input type="text" id="weight" placeholder="Player Weight">
+            </div> 
+            <div id="labels">
+                <label for="teamId">Associated Team ID: </label>
+            </div>
+            <div id="inputs">
+                <input type="text" id="teamId" placeholder="Team ID">
+            </div> 
+            <div  id="submit">
+                <input type="submit" value="Create Player">
+            </div>
+            <div id="message"></div>
+    </form>
+
+    <script>
+
+document.getElementById('input1').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const position = document.getElementById('position').value;
+        const height = document.getElementById('height').value;
+        const weight = document.getElementById('weight').value;
+        const teamId = document.getElementById('teamId').value;
+
+        if (!firstName || !lastName || !position || !height || !weight || !teamId) {
+            document.getElementById("message").innerHTML = "<p>Error: All fields must be filled.</p>";
+            return;
+        }
+
+        try {
+
+            const response = await fetch('/addPlayer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({firstName, lastName, position, height, weight, teamId}),
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                console.log("Player created successfully");
+                document.getElementById("firstName").value = "";
+                document.getElementById("lastName").value = "";
+                document.getElementById("position").value = "";
+                document.getElementById("height").value = "";
+                document.getElementById("weight").value = "";
+                document.getElementById("teamId").value = "";
+                document.getElementById("message").innerHTML = "<p>Player Created Successfully</p>";
+            } else {
+                console.error("Error creating team", result.message);
+                console.log("Team created successfully");
+                document.getElementById("firstName").value = "";
+                document.getElementById("lastName").value = "";
+                document.getElementById("position").value = "";
+                document.getElementById("height").value = "";
+                document.getElementById("weight").value = "";
+                document.getElementById("teamId").value = "";
+                document.getElementById("message").innerHTML = "<p>Error: Player Could Not Be Created</p>";
+            }
+
+        } catch (error) {
+            console.error("Server error: ", error);
+        }
+
+
+
+        });
+
+    </script>
+
+   
+
+</body>
