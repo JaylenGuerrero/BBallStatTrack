@@ -28,6 +28,8 @@
     </nav>
 
     <h1>Current Teams</h1>
+    <label for="searchBar" id="searchLabel">Search:</label>
+    <input type="text" id="searchInput">
     <table border="1">
         <thead>
             <tr>
@@ -43,25 +45,50 @@
     </table>
     
     <script>
-        fetch('/teams')
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.getElementById('teamTableBody');
-            data.forEach(team => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${team.teamName}</td>
-                    <td>${team.city}</td>
-                    <td>${team.state}</td>
-                    <td>${team.divName}</td>
-                    <td>${team.coachName}</td>
-                `;
-                tableBody.appendChild(row);
+
+        const searchInput = document.getElementById("searchInput");
+
+        searchInput.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                const query = searchInput.value.trim();
+                if (query !== "") {
+                    fetchTeams(query);
+                } else {
+                    fetchTeams();
+                }
+            }
+        })
+
+        function fetchTeams(searchQuery = "") {
+
+            let url = "/teams";
+            if (searchQuery) {
+                url += `?search=${encodeURIComponent(searchQuery)}`;
+            }
+
+
+            fetch('/teams')
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.getElementById('teamTableBody');
+                data.forEach(team => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${team.teamName}</td>
+                        <td>${team.city}</td>
+                        <td>${team.state}</td>
+                        <td>${team.divName}</td>
+                        <td>${team.coachName}</td>
+                    `;
+                    tableBody.appendChild(row);
+                })
             })
-        })
-        .catch(err => {
-            console.error('Error fetching teams: ', err);
-        })
+            .catch(err => {
+                console.error('Error fetching teams: ', err);
+            })
+            }
+        
     </script>
+    
 
 </body>
