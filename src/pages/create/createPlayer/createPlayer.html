@@ -77,6 +77,7 @@
                 <input type="submit" value="Create Player">
             </div>
             <div id="message"></div>
+            <div id="playerLink"></div>
     </form>
 
     <script>
@@ -117,6 +118,7 @@
                 document.getElementById("weight").value = "";
                 document.getElementById("teamId").value = "";
                 document.getElementById("message").innerHTML = "<p>Player Created Successfully</p>";
+                document.getElementById("playerLink").innerHTML = "<a id=\"playerLink\" href=\"stats\">See Player Here</a>";
             } else {
                 console.error("Error creating team", result.message);
                 console.log("Team created successfully");
