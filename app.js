@@ -114,27 +114,58 @@ app.get('/teams', async (req, res) => {
     }
 });
 
-app.get('/playerStats', (req, res) => {
-    const sqlPlayer = `
-        SELECT 
-            Players.id, 
-            Players.firstName, 
-            Players.lastName, 
-            Players.position, 
-            Players.height, 
-            Players.weight, 
-            Teams.teamName 
-        FROM Players
-        JOIN Teams ON Players.teamId = Teams.id
-    `;
-    teamDatabase.all(sqlPlayer, [], (err, rows) => {
-        if (err) {
-            console.error('Error fetching player stats:', err.message);
-            return res.status(500).json({ message: 'Failed to fetch players'});
-        }
-        res.json(rows);
+app.get('/playerStats', async (req, res) => {
+    // const sqlPlayer = `
+    //     SELECT 
+    //         Players.id, 
+    //         Players.firstName, 
+    //         Players.lastName, 
+    //         Players.position, 
+    //         Players.height, 
+    //         Players.weight, 
+    //         Teams.teamName 
+    //     FROM Players
+    //     JOIN Teams ON Players.teamId = Teams.id
+    // `;
+    // teamDatabase.all(sqlPlayer, [], (err, rows) => {
+    //     if (err) {
+    //         console.error('Error fetching player stats:', err.message);
+    //         return res.status(500).json({ message: 'Failed to fetch players'});
+    //     }
+    //     res.json(rows);
 
-    });
+    // });
+    const search = req.query.search || "";
+
+    let query = "SELECT Players.*, Teams.teamName FROM Players JOIN Teams ON Players.teamId = Teams.id";
+    let params = [];
+
+    if (search) {
+        query += `
+            WHERE Players.firstName LIKE ?
+            OR Players.lastName LIKE ?`;
+        const likeSearch = `%${search}%`;
+        params = [likeSearch, likeSearch];
+    }
+
+    try {
+        const rows = await new Promise((resolve, reject) => {
+            teamDatabase.all(query, params, (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+
+        res.json(rows);
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+
+
 })
 
 app.get('/createPlayer', (req, res) => {
@@ -284,8 +315,6 @@ app.post('/addPlayer', (req, res) => {
         })
 
     })
-
-
 });
 
 app.post('/resetDatabase', (req, res) => {
