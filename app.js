@@ -79,15 +79,39 @@ app.get('/teamsPage', (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'pages', 'teams', 'teams.html'));
 });
 
-app.get('/teams', (req, res) => {
-    const sql = "SELECT * FROM Teams";
-    teamDatabase.all(sql, [], (err, rows) => {
-        if (err) {
-            console.error('Error fetching teams:', err.message);
-            return res.status(500).json({ message: 'Failed to fetch teams' });
-        }
+app.get('/teams', async (req, res) => {
+    const search = req.query.search || "";
+
+    let query = "SELECT * FROM teams";
+    let params = [];
+
+    if (search) {
+        query += `
+            WHERE teamName LIKE ?
+            OR city LIKE ?
+            OR state LIKE ?
+            OR divName LIKE ?
+            OR coachName LIKE ?`;
+        const likeSearch = `%${search}%`;
+        params = [likeSearch, likeSearch, likeSearch, likeSearch, likeSearch];
+    }
+
+    try {
+        const rows = await new Promise((resolve, reject) => {
+            teamDatabase.all(query, params, (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+
         res.json(rows);
-    });
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
 app.get('/playerStats', (req, res) => {

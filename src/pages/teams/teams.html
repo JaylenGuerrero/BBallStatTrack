@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial=scale=1.0"/>
-    <title>Account</title>
+    <title>Teams</title>
     <meta name="description" content="Teams page for BBallStatTrack"/>
     <meta name="author" content="Jaylen Guerrero"/>
     <link rel="stylesheet" href="/pages/teams/style/teams.css">
@@ -39,6 +39,7 @@
                 <th>Division</th>
                 <th>Coach</th>
             </tr>
+            
         </thead>
         <tbody id="teamTableBody">
         </tbody>
@@ -49,7 +50,9 @@
         const searchInput = document.getElementById("searchInput");
 
         searchInput.addEventListener("keydown", function(event) {
+
             if (event.key === "Enter") {
+                event.preventDefault();
                 const query = searchInput.value.trim();
                 if (query !== "") {
                     fetchTeams(query);
@@ -57,7 +60,7 @@
                     fetchTeams();
                 }
             }
-        })
+        });
 
         function fetchTeams(searchQuery = "") {
 
@@ -66,11 +69,18 @@
                 url += `?search=${encodeURIComponent(searchQuery)}`;
             }
 
-
-            fetch('/teams')
-            .then(response => response.json())
+            fetch(url)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            })
             .then(data => {
                 const tableBody = document.getElementById('teamTableBody');
+                tableBody.innerHTML = "";
+
                 data.forEach(team => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
@@ -87,8 +97,11 @@
                 console.error('Error fetching teams: ', err);
             })
             }
+
+            fetchTeams();
         
     </script>
     
 
 </body>
+</html>
