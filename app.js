@@ -151,7 +151,7 @@ app.get('/playerStats', async (req, res) => {
 app.get('/createPlayer', (req, res) => {
     res.sendFile(__dirname + "/src/pages/create/createPlayer/createPlayer.html");
 })
-//test
+
 
 app.use(express.json());
 
