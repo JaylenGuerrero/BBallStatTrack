@@ -45,7 +45,9 @@ app.get('/create', (req, res) => {
     res.sendFile(__dirname + '/src/pages/create/create.html');
 });
 
-
+app.get('/season', (req, res) => {
+    res.sendFile(__dirname + '/src/pages/create/seasons/season.html');
+})
 
 app.get('/account', (req, res) => {
     if (req.session.user) {
@@ -77,38 +79,73 @@ app.get('/teamsPage', (req, res) => {
     res.sendFile(path.join(__dirname, 'src', 'pages', 'teams', 'teams.html'));
 });
 
-app.get('/teams', (req, res) => {
-    const sql = "SELECT * FROM Teams";
-    teamDatabase.all(sql, [], (err, rows) => {
-        if (err) {
-            console.error('Error fetching teams:', err.message);
-            return res.status(500).json({ message: 'Failed to fetch teams' });
-        }
+app.get('/teams', async (req, res) => {
+    const search = req.query.search || "";
+
+    let query = "SELECT * FROM teams";
+    let params = [];
+
+    if (search) {
+        query += `
+            WHERE teamName LIKE ?
+            OR city LIKE ?
+            OR state LIKE ?
+            OR divName LIKE ?
+            OR coachName LIKE ?`;
+        const likeSearch = `%${search}%`;
+        params = [likeSearch, likeSearch, likeSearch, likeSearch, likeSearch];
+    }
+
+    try {
+        const rows = await new Promise((resolve, reject) => {
+            teamDatabase.all(query, params, (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+
         res.json(rows);
-    });
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
-app.get('/playerStats', (req, res) => {
-    const sqlPlayer = `
-        SELECT 
-            Players.id, 
-            Players.firstName, 
-            Players.lastName, 
-            Players.position, 
-            Players.height, 
-            Players.weight, 
-            Teams.teamName 
-        FROM Players
-        JOIN Teams ON Players.teamId = Teams.id
-    `;
-    teamDatabase.all(sqlPlayer, [], (err, rows) => {
-        if (err) {
-            console.error('Error fetching player stats:', err.message);
-            return res.status(500).json({ message: 'Failed to fetch players'});
-        }
-        res.json(rows);
+app.get('/playerStats', async (req, res) => {
+    const search = req.query.search || "";
 
-    });
+    let query = "SELECT Players.*, Teams.teamName FROM Players JOIN Teams ON Players.teamId = Teams.id";
+    let params = [];
+
+    if (search) {
+        query += `
+            WHERE Players.firstName LIKE ?
+            OR Players.lastName LIKE ?`;
+        const likeSearch = `%${search}%`;
+        params = [likeSearch, likeSearch];
+    }
+
+    try {
+        const rows = await new Promise((resolve, reject) => {
+            teamDatabase.all(query, params, (err, rows) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(rows);
+                }
+            });
+        });
+
+        res.json(rows);
+    } catch (err) {
+        console.error('Database error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
+
+
 })
 
 app.get('/createPlayer', (req, res) => {
@@ -258,9 +295,76 @@ app.post('/addPlayer', (req, res) => {
         })
 
     })
-
-
 });
+
+app.post('/newSeason', async (req, res) => {
+    const [teamId, seasonName, leagueName, season, year] = req.body;
+
+    const sqlCreateSeason = `CREATE TABLE IF NOT EXISTS Seasons (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            teamId INTEGER NOT NULL,
+                            wins INTEGER DEFAULT 0,
+                            losses INTEGER DEFAULT 0,
+                            seasonName TEXT NOT NULL,
+                            leagueName TEXT NOT NULL,
+                            season TEXT NOT NULL,
+                            year INTEGER NOT NULL,
+                            FOREIGN KEY (teamId) REFERENCES Teams(id)
+                            )`
+
+    const sqlSeasonInsert = `INSERT INTO Seasons (teamId, wins, losses, seasonName, leagueName, season, year)
+                            VALUES (?, 0, 0, ?, ?, ?, ?)`;
+    const values = [teamId, seasonName, leagueName, season, year];
+
+    teamDatabase.run(sqlCreateSeason, (err) => {
+        if (err) {
+            console.error("Error creating season table: ", err.message);
+            return res.status(500).json({ message: 'Error creating Seasons table'});
+        }
+        teamDatabase.run(sqlSeasonInsert, values, function(err) {
+            if (err) {
+                console.error("Error inserting season:", err.message);
+                return res.status(500).json({ message: "Error inserting season"});
+            }
+            res.status(201).json({ message: "Season added successfully"});
+        })
+
+    })
+});
+
+app.post('/resetDatabase', (req, res) => {
+    const sqlClearPlayer = "DELETE FROM Players";
+    const sqlClearTeam = "DELETE FROM Teams";
+    const sqlClearSeq = "DELETE FROM sqlite_sequence WHERE name='Teams';DELETE FROM sqlite_sequence WHERE name='Players'";
+
+    teamDatabase.run(sqlClearTeam, (err) => {
+        if (err) {
+            console.error('Error clearing Teams table: ', err.message);
+            return res.status(500).json({ message: 'Error clearing Teams table'});
+        }
+
+        teamDatabase.run(sqlClearPlayer, (err) => {
+            if (err) {
+                console.error('Error clearing players table');
+                return res.status(500).json({ message: 'Error clearing players from table'});
+            }
+
+            teamDatabase.exec(sqlClearSeq, (err) => {
+                if (err) {
+                    console.error("Error clearing sequence:", err.message);
+                    return res.status(500).json({ message: 'Error clearing sequence'});
+                }
+
+                res.status(201).json({ message: 'Database cleared successfully'});
+            })
+
+
+
+            
+        })
+        
+    })
+})
 
 function isAuth(req, res, next) {
     if (req.session.user) {

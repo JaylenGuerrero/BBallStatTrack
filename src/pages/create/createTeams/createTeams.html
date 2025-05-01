@@ -62,6 +62,7 @@
                 <input type="submit" id="submit" value="Create Team">
             </div> 
             <div id="message"></div>
+            <div id="teamLink"></div>
     </form>
     </div>
     <script>
@@ -98,6 +99,7 @@
                 document.getElementById("state").value = "";
                 document.getElementById("coachName").value = "";
                 document.getElementById("message").innerHTML = "<p>Team Created Successfully</p>";
+                document.getElementById("teamLink").innerHTML = "<a id=\"teamLink\" href=\"/teamsPage\">See team here</a>";
             } else {
                 console.error("Error creating team", result.message);
             }

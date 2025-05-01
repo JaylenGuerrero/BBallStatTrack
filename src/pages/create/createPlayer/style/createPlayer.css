@@ -49,3 +49,10 @@
     display: flex;
     justify-content: center;
 }
+#playerLink {
+    display: flex;
+    color: blue;
+    margin-top: 10px;
+    align-items: center;
+    justify-content: center;
+}

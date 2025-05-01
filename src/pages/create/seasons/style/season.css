@@ -37,9 +37,9 @@
     display: flex;
     justify-content: center;
 }
-#teamLink {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: blue;
+
+#inputs select {
+    padding: 5px;
+    font-size: 15px;
+    text-align: center;
 }

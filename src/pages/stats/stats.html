@@ -30,6 +30,8 @@
 
 
     <h1>Player Stats</h1>
+    <label for="searchBar" id="searchLabel">Search:</label>
+    <input type="text" id="searchInput">
     <table border="1">
         <thead>
             <tr>
@@ -45,7 +47,7 @@
         </tbody>
     </table>
     
-    <script>
+    <!-- <script>
         fetch('/playerStats')
         .then(response => response.json())
         .then(data => {
@@ -66,6 +68,61 @@
         .catch(err => {
             console.error('Error fetching teams: ', err);
         })
+    </script> -->
+    <script>
+
+        const searchInput = document.getElementById("searchInput");
+
+        searchInput.addEventListener("input", function(event) {
+
+                event.preventDefault();
+                const query = searchInput.value.trim();
+                if (query !== "") {
+                    fetchPlayers(query);
+                } else {
+                    fetchPlayers();
+            }
+        });
+
+        function fetchPlayers(searchQuery = "") {
+
+            let url = "/playerStats";
+            if (searchQuery) {
+                url += `?search=${encodeURIComponent(searchQuery)}`;
+            }
+            
+            fetch(url)
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+            })
+            .then(data => {
+                const tableBody = document.getElementById('playerBody');
+                tableBody.innerHTML = "";
+
+                data.forEach(player => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${player.firstName}</td>
+                        <td>${player.lastName}</td>
+                        <td>${player.teamName}</td>
+                        <td>${player.position}</td>
+                        <td>${player.height}</td>
+                        <td>${player.weight}</td>
+                    `;
+                    tableBody.appendChild(row);
+                })
+            })
+            .catch(err => {
+                console.error('Error fetching players: ', err);
+            })
+            }
+
+            fetchPlayers();
+        
     </script>
 
 </body>
