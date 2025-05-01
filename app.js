@@ -115,26 +115,6 @@ app.get('/teams', async (req, res) => {
 });
 
 app.get('/playerStats', async (req, res) => {
-    // const sqlPlayer = `
-    //     SELECT 
-    //         Players.id, 
-    //         Players.firstName, 
-    //         Players.lastName, 
-    //         Players.position, 
-    //         Players.height, 
-    //         Players.weight, 
-    //         Teams.teamName 
-    //     FROM Players
-    //     JOIN Teams ON Players.teamId = Teams.id
-    // `;
-    // teamDatabase.all(sqlPlayer, [], (err, rows) => {
-    //     if (err) {
-    //         console.error('Error fetching player stats:', err.message);
-    //         return res.status(500).json({ message: 'Failed to fetch players'});
-    //     }
-    //     res.json(rows);
-
-    // });
     const search = req.query.search || "";
 
     let query = "SELECT Players.*, Teams.teamName FROM Players JOIN Teams ON Players.teamId = Teams.id";
@@ -312,6 +292,41 @@ app.post('/addPlayer', (req, res) => {
                 return res.status(500).json({ message: 'Error inserting player'});
             }
             res.status(201).json({ message: 'Player added successfully'});
+        })
+
+    })
+});
+
+app.post('/newSeason', async (req, res) => {
+    const [teamId, seasonName, leagueName, season, year] = req.body;
+
+    const sqlCreateSeason = `CREATE TABLE IF NOT EXISTS Seasons (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            teamId INTEGER NOT NULL,
+                            wins INTEGER DEFAULT 0,
+                            losses INTEGER DEFAULT 0,
+                            seasonName TEXT NOT NULL,
+                            leagueName TEXT NOT NULL,
+                            season TEXT NOT NULL,
+                            year INTEGER NOT NULL,
+                            FOREIGN KEY (teamId) REFERENCES Teams(id)
+                            )`
+
+    const sqlSeasonInsert = `INSERT INTO Seasons (teamId, wins, losses, seasonName, leagueName, season, year)
+                            VALUES (?, 0, 0, ?, ?, ?, ?)`;
+    const values = [teamId, seasonName, leagueName, season, year];
+
+    teamDatabase.run(sqlCreateSeason, (err) => {
+        if (err) {
+            console.error("Error creating season table: ", err.message);
+            return res.status(500).json({ message: 'Error creating Seasons table'});
+        }
+        teamDatabase.run(sqlSeasonInsert, values, function(err) {
+            if (err) {
+                console.error("Error inserting season:", err.message);
+                return res.status(500).json({ message: "Error inserting season"});
+            }
+            res.status(201).json({ message: "Season added successfully"});
         })
 
     })
