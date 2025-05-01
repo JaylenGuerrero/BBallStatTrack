@@ -152,6 +152,27 @@ app.get('/createPlayer', (req, res) => {
     res.sendFile(__dirname + "/src/pages/create/createPlayer/createPlayer.html");
 })
 
+app.get('/team', (req, res) => {
+    res.sendFile(__dirname + "/src/pages/teamInfo/teamInfo.html");
+})
+
+app.get('/teamInfo', (req, res) => {
+    const teamId = req.query.id;
+    console.log(teamId);
+
+    let query = "SELECT * FROM Teams WHERE id = ?";
+    teamDatabase.get(query, [teamId], (err, row) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Error getting team data:'});
+        } else if (!row) {
+            console.error("Error finding team:", err);
+            return res.status(404).json({ message: "Error finding team in database"});
+        } else {
+            res.json(row);
+        }
+    })
+})
 
 app.use(express.json());
 

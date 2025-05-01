@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial=scale=1.0"/>
+    <title>Teams</title>
+    <meta name="description" content="Team information page for BBallStatTrack"/>
+    <meta name="author" content="Jaylen Guerrero"/>
+    <link rel="stylesheet" href="/pages/teamInfo/style/teamInfo.css">
+    <link rel="stylesheet" href="/pages/style/nav.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <nav>
+        <div class="name">BBallStatTrack</div>
+        <div class="navLinks">
+            <a href="/">Home</a>
+            <a href="/create">Create</a>
+            <a href="/stats">Stats</a>
+            <a href="/teamsPage">Teams</a>
+            <a href="/account">Account</a>
+            <a href="/about">About</a>
+    </nav>
+    <h1 id="teamName">Loading...</h1>
+    <h3 id="location">Loading...</h3>
+    <h3 id="division">Loading...</h3>
+    <h3 id="coach">Loading...</h3>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const teamId = params.get('id');
+
+            if (!teamId) {
+                document.body.innerHTML = "<h2>No team ID provided.</h2>";
+                return;
+            }
+
+            fetch(`/teamInfo?id=${teamId}`)
+                .then(res => res.json())
+                .then(team => {
+                    document.getElementById("teamName").textContent = team.teamName;
+                    document.getElementById("location").textContent = "Location: " + team.city + ", " + team.state;
+                    document.getElementById("division").textContent = "Division: " + team.divName;
+                    document.getElementById("coach").textContent = "Coach: " + team.coachName;
+                })
+                .catch(err => {
+                    document.body.innerHTML = "<h3>Error loading team data</h3>";
+                    console.error(err);
+                });
+            });
+
+
+    </script>
+
+
+</body>
