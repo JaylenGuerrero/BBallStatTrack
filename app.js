@@ -158,7 +158,6 @@ app.get('/team', (req, res) => {
 
 app.get('/teamInfo', (req, res) => {
     const teamId = req.query.id;
-    console.log(teamId);
 
     let query = "SELECT * FROM Teams WHERE id = ?";
     teamDatabase.get(query, [teamId], (err, row) => {
