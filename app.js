@@ -160,7 +160,7 @@ app.get('/team', (req, res) => {
     res.sendFile(__dirname + "/src/pages/teamInfo/teamInfo.html");
 })
 
-app.get('/teamInfo', (req, res) => {
+app.get('/teamInfo', async (req, res) => {
     const teamId = req.query.id;
 
     let query = "SELECT * FROM Teams WHERE id = ?";
@@ -182,14 +182,26 @@ app.get('/teamInfo', (req, res) => {
             console.error("Error finding team data");
             return res.status(500).json({ message: 'Error finding team in database'});
         } 
-        res.json({
-            team: teamRow,
-            roster: rosterRow
+
+        let seasonQuery = "SELECT * FROM Seasons WHERE teamId = ?"
+        teamDatabase.all(seasonQuery, [teamId], (err, seasonRow) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: 'Error getting season Information'});
+            } else if (!seasonRow) {
+                console.error("Error finding season data");
+                return res.status(500).json({ message: 'Error finding team in database'});
+            }
+
+            res.json({
+                team: teamRow,
+                roster: rosterRow,
+                season: seasonRow
+            });
         });
-    })
-    })
-    
-})
+    });
+});   
+});
 
 app.use(express.json());
 
@@ -336,7 +348,7 @@ app.post('/addPlayer', (req, res) => {
 });
 
 app.post('/newSeason', async (req, res) => {
-    const [teamId, seasonName, leagueName, season, year] = req.body;
+    const {teamId, seasonName, leagueName, season, year} = req.body;
 
     const sqlCreateSeason = `CREATE TABLE IF NOT EXISTS Seasons (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -373,6 +385,7 @@ app.post('/newSeason', async (req, res) => {
 app.post('/resetDatabase', (req, res) => {
     const sqlClearPlayer = "DELETE FROM Players";
     const sqlClearTeam = "DELETE FROM Teams";
+    const sqlClearSeason = "DELETE FROM Seasons";
     const sqlClearSeq = "DELETE FROM sqlite_sequence WHERE name='Teams';DELETE FROM sqlite_sequence WHERE name='Players'";
 
     teamDatabase.run(sqlClearTeam, (err) => {
@@ -387,13 +400,19 @@ app.post('/resetDatabase', (req, res) => {
                 return res.status(500).json({ message: 'Error clearing players from table'});
             }
 
-            teamDatabase.exec(sqlClearSeq, (err) => {
+            teamDatabase.run(sqlClearSeason, (err) => {
                 if (err) {
-                    console.error("Error clearing sequence:", err.message);
-                    return res.status(500).json({ message: 'Error clearing sequence'});
+                    console.error('Error clearing seasons table');
+                    return res.status(500).json({ message: 'Error clearing seasons from table'});
                 }
 
-                res.status(201).json({ message: 'Database cleared successfully'});
+                teamDatabase.exec(sqlClearSeq, (err) => {
+                    if (err) {
+                        console.error("Error clearing sequence:", err.message);
+                        return res.status(500).json({ message: 'Error clearing sequence'});
+                    }
+                    res.status(201).json({ message: 'Databases cleared successfully'});
+                })
             })
 
 

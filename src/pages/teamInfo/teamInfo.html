@@ -44,6 +44,20 @@
         <tbody id="rosterTableBody">
         </tbody>
     </table>
+    <h2 id="season">Season</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Season Name</th>
+                <th>League Name</th>
+                <th>Year</th>
+                <th>Wins</th>
+                <th>Losses</th>
+            </tr>
+        </thead>
+        <tbody id="seasonTableBody">
+        </tbody>
+    </table>
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
@@ -60,6 +74,7 @@
                 .then(data => {
                     const team = data.team;
                     const roster = data.roster;
+                    const season = data.season;
 
 
                     document.getElementById("teamName").textContent = team.teamName;
@@ -82,6 +97,22 @@
                             <td>${player.weight} lbs</td>`;
                             tableBody.appendChild(row);
                         });
+                    }
+                    
+                    const seasonTableBody = document.getElementById("seasonTableBody");
+                    if (season.length === 0) {
+                        document.getElementById("season").innerHTML = "<h2>Seasons: No seasons yet</h2>"
+                    } else {
+                        season.forEach(seasonData => {
+                            const seasonRow = document.createElement('tr');
+                            seasonRow.innerHTML = `
+                            <td>${seasonData.seasonName}</td>
+                            <td>${seasonData.leagueName}</td>
+                            <td>${seasonData.year}</td>
+                            <td>${seasonData.wins}</td>
+                            <td>${seasonData.losses}</td>`;
+                            seasonTableBody.appendChild(seasonRow);
+                        })
                     }
 
                 })
