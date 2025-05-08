@@ -82,7 +82,7 @@
                 data.forEach(team => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
-                        <td>${team.teamName}</td>
+                        <td><a href="/team?id=${team.id}">${team.teamName}</a></td>
                         <td>${team.city}</td>
                         <td>${team.state}</td>
                         <td>${team.divName}</td>
