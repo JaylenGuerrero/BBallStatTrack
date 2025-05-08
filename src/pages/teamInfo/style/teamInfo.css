@@ -1,0 +1,32 @@
+th {
+    text-align: center;
+    padding: 5px;
+}
+table {
+    width: 100%;
+    justify-content: center;
+    border: 5px solid #a8aaad;
+}
+td {
+    text-align: left;
+    padding-top: 5px;
+    
+}
+tbody tr:nth-child(even) {
+    background-color: #a8aaad;
+}
+tbody tr:nth-child(odd) {
+    background-color: whitesmoke;
+}
+#addNewPlayer {
+    color: black;
+    border: solid 2px #e6961e;
+    border-radius: 8px;
+    padding: 2px;
+    padding-right: 4px;
+    padding-left: 4px;
+    font-size: 20px;
+    background-color: whitesmoke;
+    text-decoration: none;
+    
+}

@@ -152,26 +152,56 @@ app.get('/createPlayer', (req, res) => {
     res.sendFile(__dirname + "/src/pages/create/createPlayer/createPlayer.html");
 })
 
+// app.get('/getRoster', async (req, res) => {
+    
+// })
+
 app.get('/team', (req, res) => {
     res.sendFile(__dirname + "/src/pages/teamInfo/teamInfo.html");
 })
 
-app.get('/teamInfo', (req, res) => {
+app.get('/teamInfo', async (req, res) => {
     const teamId = req.query.id;
 
     let query = "SELECT * FROM Teams WHERE id = ?";
-    teamDatabase.get(query, [teamId], (err, row) => {
+    teamDatabase.get(query, [teamId], (err, teamRow) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ message: 'Error getting team data:'});
-        } else if (!row) {
+        } else if (!teamRow) {
             console.error("Error finding team:", err);
             return res.status(404).json({ message: "Error finding team in database"});
-        } else {
-            res.json(row);
-        }
-    })
-})
+        } 
+
+        let rosterQuery = "SELECT * FROM Players WHERE teamId = ?";
+        teamDatabase.all(rosterQuery, [teamId], (err, rosterRow) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Error getting roster information'});
+        } else if (!rosterRow) {
+            console.error("Error finding team data");
+            return res.status(500).json({ message: 'Error finding team in database'});
+        } 
+
+        let seasonQuery = "SELECT * FROM Seasons WHERE teamId = ?"
+        teamDatabase.all(seasonQuery, [teamId], (err, seasonRow) => {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: 'Error getting season Information'});
+            } else if (!seasonRow) {
+                console.error("Error finding season data");
+                return res.status(500).json({ message: 'Error finding team in database'});
+            }
+
+            res.json({
+                team: teamRow,
+                roster: rosterRow,
+                season: seasonRow
+            });
+        });
+    });
+});   
+});
 
 app.use(express.json());
 
@@ -318,7 +348,7 @@ app.post('/addPlayer', (req, res) => {
 });
 
 app.post('/newSeason', async (req, res) => {
-    const [teamId, seasonName, leagueName, season, year] = req.body;
+    const {teamId, seasonName, leagueName, season, year} = req.body;
 
     const sqlCreateSeason = `CREATE TABLE IF NOT EXISTS Seasons (
                             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -355,6 +385,7 @@ app.post('/newSeason', async (req, res) => {
 app.post('/resetDatabase', (req, res) => {
     const sqlClearPlayer = "DELETE FROM Players";
     const sqlClearTeam = "DELETE FROM Teams";
+    const sqlClearSeason = "DELETE FROM Seasons";
     const sqlClearSeq = "DELETE FROM sqlite_sequence WHERE name='Teams';DELETE FROM sqlite_sequence WHERE name='Players'";
 
     teamDatabase.run(sqlClearTeam, (err) => {
@@ -369,13 +400,19 @@ app.post('/resetDatabase', (req, res) => {
                 return res.status(500).json({ message: 'Error clearing players from table'});
             }
 
-            teamDatabase.exec(sqlClearSeq, (err) => {
+            teamDatabase.run(sqlClearSeason, (err) => {
                 if (err) {
-                    console.error("Error clearing sequence:", err.message);
-                    return res.status(500).json({ message: 'Error clearing sequence'});
+                    console.error('Error clearing seasons table');
+                    return res.status(500).json({ message: 'Error clearing seasons from table'});
                 }
 
-                res.status(201).json({ message: 'Database cleared successfully'});
+                teamDatabase.exec(sqlClearSeq, (err) => {
+                    if (err) {
+                        console.error("Error clearing sequence:", err.message);
+                        return res.status(500).json({ message: 'Error clearing sequence'});
+                    }
+                    res.status(201).json({ message: 'Databases cleared successfully'});
+                })
             })
 
 
