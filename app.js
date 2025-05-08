@@ -152,6 +152,10 @@ app.get('/createPlayer', (req, res) => {
     res.sendFile(__dirname + "/src/pages/create/createPlayer/createPlayer.html");
 })
 
+// app.get('/getRoster', async (req, res) => {
+    
+// })
+
 app.get('/team', (req, res) => {
     res.sendFile(__dirname + "/src/pages/teamInfo/teamInfo.html");
 })
@@ -160,17 +164,31 @@ app.get('/teamInfo', (req, res) => {
     const teamId = req.query.id;
 
     let query = "SELECT * FROM Teams WHERE id = ?";
-    teamDatabase.get(query, [teamId], (err, row) => {
+    teamDatabase.get(query, [teamId], (err, teamRow) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ message: 'Error getting team data:'});
-        } else if (!row) {
+        } else if (!teamRow) {
             console.error("Error finding team:", err);
             return res.status(404).json({ message: "Error finding team in database"});
-        } else {
-            res.json(row);
-        }
+        } 
+
+        let rosterQuery = "SELECT * FROM Players WHERE teamId = ?";
+        teamDatabase.all(rosterQuery, [teamId], (err, rosterRow) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ message: 'Error getting roster information'});
+        } else if (!rosterRow) {
+            console.error("Error finding team data");
+            return res.status(500).json({ message: 'Error finding team in database'});
+        } 
+        res.json({
+            team: teamRow,
+            roster: rosterRow
+        });
     })
+    })
+    
 })
 
 app.use(express.json());

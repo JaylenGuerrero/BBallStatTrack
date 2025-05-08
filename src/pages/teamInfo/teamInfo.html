@@ -29,6 +29,21 @@
     <h3 id="location">Loading...</h3>
     <h3 id="division">Loading...</h3>
     <h3 id="coach">Loading...</h3>
+    <h3 id="id">Loading...</h3>
+    <a id="addNewPlayer" href="/createPlayer">Add a player to this team</a>
+    <h2 id="roster">Roster</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>Position</th>
+                <th>Height</th>
+                <th>Weight</th>
+            </tr>
+        </thead>
+        <tbody id="rosterTableBody">
+        </tbody>
+    </table>
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
@@ -42,17 +57,41 @@
 
             fetch(`/teamInfo?id=${teamId}`)
                 .then(res => res.json())
-                .then(team => {
+                .then(data => {
+                    const team = data.team;
+                    const roster = data.roster;
+
+
                     document.getElementById("teamName").textContent = team.teamName;
                     document.getElementById("location").textContent = "Location: " + team.city + ", " + team.state;
                     document.getElementById("division").textContent = "Division: " + team.divName;
                     document.getElementById("coach").textContent = "Coach: " + team.coachName;
+                    document.getElementById("id").textContent = "ID: " + team.id;
+
+                    const tableBody = document.getElementById("rosterTableBody");
+
+                    if (roster.length === 0) {
+                        document.getElementById("roster").innerHTML = "<h2>Roster: No players on roster</h2>"
+                    } else {
+                        roster.forEach(player => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                            <td>${player.firstName} ${player.lastName}</td>
+                            <td>${player.position}</td>
+                            <td>${player.height} ft</td>
+                            <td>${player.weight} lbs</td>`;
+                            tableBody.appendChild(row);
+                        });
+                    }
+
                 })
                 .catch(err => {
                     document.body.innerHTML = "<h3>Error loading team data</h3>";
                     console.error(err);
                 });
-            });
+        });
+
+        
 
 
     </script>
