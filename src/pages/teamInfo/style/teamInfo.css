@@ -30,3 +30,21 @@ tbody tr:nth-child(odd) {
     text-decoration: none;
     
 }
+#addNewSeason {
+    color: black;
+    border: solid 2px #e6961e;
+    border-radius: 8px;
+    padding: 2px;
+    padding-right: 4px;
+    padding-left: 4px;
+    font-size: 20px;
+    background-color: whitesmoke;
+    text-decoration: none;
+    margin-left: 5px;
+    
+}
+#adds {
+    display: flex;
+    justify-content: left;
+    align-items: center;
+}

@@ -415,8 +415,6 @@ app.post('/resetDatabase', (req, res) => {
                 })
             })
 
-//test commit
-
         })
         
     })
