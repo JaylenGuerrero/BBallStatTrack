@@ -108,7 +108,7 @@
                         season.forEach(seasonData => {
                             const seasonRow = document.createElement('tr');
                             seasonRow.innerHTML = `
-                            <td>${seasonData.seasonName}</td>
+                            <td><a href="/seasonDash?id=${seasonData.teamId}">${seasonData.seasonName}</a></td>
                             <td>${seasonData.leagueName}</td>
                             <td>${seasonData.year}</td>
                             <td>${seasonData.wins}</td>
@@ -122,7 +122,11 @@
                     document.body.innerHTML = "<h3>Error loading team data</h3>";
                     console.error(err);
                 });
-        });
+                
+
+
+
+            });
 
         
 

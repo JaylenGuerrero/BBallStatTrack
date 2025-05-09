@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial=scale=1.0"/>
+    <title>Season Dash</title>
+    <meta name="description" content="Season dashboard page for BBallStatTrack"/>
+    <meta name="author" content="Jaylen Guerrero"/>
+    <link rel="stylesheet" href="/pages/seasonDash/style/seasonDash.css">
+    <link rel="stylesheet" href="/pages/style/nav.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+
+</head>
+<body>
+    <nav>
+        <div class="name">BBallStatTrack</div>
+        <div class="navLinks">
+            <a href="/">Home</a>
+            <a href="/create">Create</a>
+            <a href="/stats">Stats</a>
+            <a href="/teamsPage">Teams</a>
+            <a href="/account">Account</a>
+            <a href="/about">About</a>
+    </nav>
+
+    <h1 id="seasonName">Loading season...</h1>
+    <p id="leagueInfo"></p>
+    <p id="record"></p>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const seasonId = params.get('id');
+
+    if (!seasonId) {
+        document.body.innerHTML = "<h2>No season ID provided.</h2>";
+        return;
+    }
+
+    fetch(`/seasonInfo?id=${seasonId}`)
+        .then(res => res.json())
+        .then(data => {
+            console.log('Fetched season and team data:', data); // Check this in console
+
+            // Assuming the data returned is an array (which it likely is based on the DB query)
+            if (data) {
+                const season = data; // Get the first item (season)
+                document.getElementById("seasonName").textContent = season.seasonName;
+                document.getElementById("leagueInfo").textContent = `${season.leagueName} - ${season.year}`;
+                document.getElementById("record").textContent = `Record: ${season.wins} - ${season.losses}`;
+            } else {
+                console.error('No season data available');
+                document.body.innerHTML = "<h3>No season data found</h3>";
+            }
+        })
+        .catch(err => {
+            console.error('Fetch error:', err);
+            document.body.innerHTML = "<h3>Error loading season data</h3>";
+        });
+});
+
+    </script>
+
+
+
+</body>

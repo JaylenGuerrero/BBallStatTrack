@@ -152,6 +152,36 @@ app.get('/createPlayer', (req, res) => {
     res.sendFile(__dirname + "/src/pages/create/createPlayer/createPlayer.html");
 })
 
+app.get('/seasonDash', async (req, res) => {
+    res.sendFile(__dirname + "/src/pages/seasonDash/seasonDash.html");
+    
+})
+
+app.get('/seasonInfo', async (req, res) => {
+    const seasonId = req.query.id;
+
+    if (!seasonId) {
+        return res.status(400).json({ error: 'No season ID provided'});
+    }
+
+    const sqlSeasonQuery = "SELECT * FROM Seasons WHERE teamId = ?";
+
+    teamDatabase.get(sqlSeasonQuery, [seasonId], (err, seasonRow) => {
+        if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Cannot retrieve season data'});
+        }
+
+        if (!seasonRow) {
+            return res.status(404).json({ error: 'Season not found'});
+        }
+
+        res.json(seasonRow);
+
+    })
+
+})
+
 // app.get('/getRoster', async (req, res) => {
     
 // })
