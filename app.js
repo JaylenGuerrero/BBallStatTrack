@@ -49,6 +49,10 @@ app.get('/season', (req, res) => {
     res.sendFile(__dirname + '/src/pages/create/seasons/season.html');
 })
 
+app.get('/createGame', (req, res) => {
+    res.sendFile(__dirname + '/src/pages/games/createGame.html');
+})
+
 app.get('/account', (req, res) => {
     if (req.session.user) {
         res.sendFile(__dirname + '/src/pages/dash/dashboard.html');
@@ -412,11 +416,37 @@ app.post('/newSeason', async (req, res) => {
     })
 });
 
+app.post('/startGame', async (req, res) => {
+    const { opponent, location, date} = req.body;
+
+    if (!opponent || !location || !date) {
+        return res.status(400).json({ message: 'All fields are required'});
+    }
+
+    try {
+        const teamId = 1;
+        const seasonId = await getCurrentSeasonId(teamId);
+
+        const sqlNewGame = `
+        INSERT INTO Games (seasonId, teamId, opponent, date, location, result)
+        VALUES (?, ?, ?, ?, ?, ?)`;
+
+        await teamDatabase.run(sqlNewGame, [seasonId, teamId, opponent, date, location, null]);
+        res.json({ message: 'Game create successfully' });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error, could not start game' });
+    }
+
+
+})
+
 app.post('/resetDatabase', (req, res) => {
     const sqlClearPlayer = "DELETE FROM Players";
     const sqlClearTeam = "DELETE FROM Teams";
     const sqlClearSeason = "DELETE FROM Seasons";
     const sqlClearSeq = "DELETE FROM sqlite_sequence WHERE name='Teams';DELETE FROM sqlite_sequence WHERE name='Players'";
+    const sqlClearSeasonSeq = "DELETE FROM sqlite_sequence WHERE name='Seasons'";
 
     teamDatabase.run(sqlClearTeam, (err) => {
         if (err) {
@@ -441,7 +471,16 @@ app.post('/resetDatabase', (req, res) => {
                         console.error("Error clearing sequence:", err.message);
                         return res.status(500).json({ message: 'Error clearing sequence'});
                     }
-                    res.status(201).json({ message: 'Databases cleared successfully'});
+
+                    teamDatabase.exec(sqlClearSeasonSeq, (err) => {
+                        if (err) {
+                            console.error("Error clearing season sequence:", err.message);
+                            return res.status(500).json({ message: 'Error clearing season sequence'});
+                        }
+
+                        res.status(201).json({ message: 'Databases cleared successfully'});
+                    })
+                    
                 })
             })
 

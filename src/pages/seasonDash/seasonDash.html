@@ -29,6 +29,7 @@
     <h1 id="seasonName">Loading season...</h1>
     <p id="leagueInfo"></p>
     <p id="record"></p>
+    <a id="startGameLink" href="#">Start a game for this season</a>
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
@@ -48,9 +49,16 @@
             // Assuming the data returned is an array (which it likely is based on the DB query)
             if (data) {
                 const season = data; // Get the first item (season)
-                document.getElementById("seasonName").textContent = season.seasonName;
-                document.getElementById("leagueInfo").textContent = `${season.leagueName} - ${season.year}`;
-                document.getElementById("record").textContent = `Record: ${season.wins} - ${season.losses}`;
+                document.getElementById("seasonName").textContent = `${season.seasonName}`;
+                document.getElementById("leagueInfo").textContent = `League: ${season.leagueName} ~ Year: ${season.year}`;
+                document.getElementById("record").textContent = `Record: ${season.wins}W - ${season.losses}L`;
+
+                const teamId = season.teamId;
+                const seasonId = season.id;
+
+                const startGameLink = document.getElementById("startGameLink");
+                startGameLink.href = `/teams/${teamId}/seasons/${seasonId}/createGame`;
+
             } else {
                 console.error('No season data available');
                 document.body.innerHTML = "<h3>No season data found</h3>";
