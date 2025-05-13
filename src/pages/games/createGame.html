@@ -27,7 +27,7 @@
     </nav>
 
     <div id="input1">
-        <form>
+        <form id="form">
             <div id="labels">
                 <label for="opponent">Opponent: </label>
             </div>
@@ -55,59 +55,66 @@
 
     <script>
 
-    document.getElementById('input1').addEventListener('submit', async (e) => {
-        e.preventDefault();
+        let teamId, seasonId;
 
-        const opponent = document.getElementById('opponent').value;
-        const location = document.getElementById('location').value;
-        const date = document.getElementById('date').value;
+        window.addEventListener('DOMContentLoaded', () => {
+            const path = window.location.pathname;
 
-        if (!opponent || !location || !date ) {
-            document.getElementById("message").innerHTML = "<p>Error: All fields must be filled.</p>";
-            return;
-        }
-
-        try {
-
-            const response = await fetch('/startGame', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({opponent, location, date}),
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-                console.log("Player created successfully");
-                document.getElementById("firstName").value = "";
-                document.getElementById("lastName").value = "";
-                document.getElementById("position").value = "";
-                document.getElementById("height").value = "";
-                document.getElementById("weight").value = "";
-                document.getElementById("teamId").value = "";
-                document.getElementById("message").innerHTML = "<p>Player Created Successfully</p>";
-                document.getElementById("playerLink").innerHTML = "<a id=\"playerLink\" href=\"stats\">See Player Here</a>";
+            const match = path.match(/\/teams\/(\d+)\/seasons\/(\d+)\/createGame/);
+            if (match) {
+                teamId = match[1];
+                seasonId = match[2];
             } else {
-                console.error("Error creating team", result.message);
-                console.log("Team created successfully");
-                document.getElementById("firstName").value = "";
-                document.getElementById("lastName").value = "";
-                document.getElementById("position").value = "";
-                document.getElementById("height").value = "";
-                document.getElementById("weight").value = "";
-                document.getElementById("teamId").value = "";
-                document.getElementById("message").innerHTML = "<p>Error: Player Could Not Be Created</p>";
+                console.error("Invalid URL format. teamId and seasonId not found.");
             }
 
-        } catch (error) {
-            console.error("Server error: ", error);
-        }
+        })
+
+
+        document.getElementById('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const opponent = document.getElementById('opponent').value;
+            const location = document.getElementById('location').value;
+            const date = document.getElementById('date').value;
+
+            if (!opponent || !location || !date ) {
+                document.getElementById("message").innerHTML = "<p>Error: All fields must be filled.</p>";
+                return;
+            }
+
+            try {
+
+                const response = await fetch('/startGame', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({opponent, location, date, teamId, seasonId}),
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    console.log("Game created successfully");
+                    
+                    setTimeout(() => {
+                        window.location.href = `/teams/${teamId}/seasons/${seasonId}/gameDash`;
+                    }, 1000);
+                    
+                } else {
+                    console.error("Error creating Game", result.message);
+                    
+                    document.getElementById("message").innerHTML = "<p>Error: Game Could Not Be Created</p>";
+                }
+
+            } catch (error) {
+                console.error("Server error: ", error);
+            }
 
 
 
-        });
+            });
 
     </script>
 

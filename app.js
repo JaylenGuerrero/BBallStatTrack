@@ -47,7 +47,7 @@ const sqlCreateTeams = `CREATE TABLE IF NOT EXISTS Teams (
 teamDatabase.run(sqlCreateTeams, (err) => {
     if (err) {
         console.error('Error creating team table: ', err.message);
-        return res.status(500).json({ message: 'Error creating table'});
+        res.status(500).json({ message: 'Error creating table'});
     }
 });
 
@@ -65,7 +65,7 @@ const sqlCreatePlayer = `CREATE TABLE IF NOT EXISTS Players (
 teamDatabase.run(sqlCreatePlayer, (err) => {
         if (err) {
             console.error('Error creating Players table: ', err.message);
-            return res.status(500).json({ message: 'Error creating Players table'});
+            res.status(500).json({ message: 'Error creating Players table'});
         }
 });
 
@@ -83,9 +83,26 @@ const sqlCreateSeason = `CREATE TABLE IF NOT EXISTS Seasons (
 teamDatabase.run(sqlCreateSeason, (err) => {
         if (err) {
             console.error("Error creating season table: ", err.message);
-            return res.status(500).json({ message: 'Error creating Seasons table'});
+            res.status(500).json({ message: 'Error creating Seasons table'});
         }
 });
+
+const sqlCreateGames = `CREATE TABLE IF NOT EXISTS Games (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        seasonId INTEGER NOT NULL,
+                        teamId INTEGER NOT NULL,
+                        opponent TEXT NOT NULL,
+                        date DATE NOT NULL,
+                        location TEXT NOT NULL,
+                        result TEXT,
+                        FOREIGN KEY (seasonId) REFERENCES Seasons(id),
+                        FOREIGN KEY (teamId) REFERENCES Teams(id))`;
+teamDatabase.run(sqlCreateGames, (err) => {
+    if (err) {
+        console.error("Error creating Games table: ", err.message);
+        res.status(500).json({ message: 'Error creating Games table'});
+    }
+})
 
 
 
@@ -292,8 +309,8 @@ app.get('/teamInfo', async (req, res) => {
 
 app.get('/teams/:teamId/seasons/:seasonId/createGame', async (req, res) => {
     const { teamId, seasonId } = req.params;
-
-    res.render('createGame', { teamId, seasonId });
+    
+    res.sendFile(__dirname + '/src/pages/games/createGame.html');
 })
 
 app.use(express.json());
@@ -426,22 +443,20 @@ app.post('/newSeason', async (req, res) => {
 })
 
 app.post('/startGame', async (req, res) => {
-    const { opponent, location, date} = req.body;
+    const { opponent, location, date, teamId, seasonId} = req.body;
 
-    if (!opponent || !location || !date) {
+    if (!opponent || !location || !date || !teamId || !seasonId) {
         return res.status(400).json({ message: 'All fields are required'});
     }
 
     try {
-        const teamId = 1;
-        const seasonId = await getCurrentSeasonId(teamId);
 
         const sqlNewGame = `
         INSERT INTO Games (seasonId, teamId, opponent, date, location, result)
         VALUES (?, ?, ?, ?, ?, ?)`;
 
         await teamDatabase.run(sqlNewGame, [seasonId, teamId, opponent, date, location, null]);
-        res.json({ message: 'Game create successfully' });
+        res.json({ message: 'Game created successfully', gameId: this.lastID });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error, could not start game' });
