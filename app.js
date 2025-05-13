@@ -20,6 +20,7 @@ app.use(session({
 
 
 const database = new sqlite3.Database('./src/data/database.db');
+const teamDatabase = new sqlite3.Database('./src/data/teamDatabase.db');
 
 const sqlCreate = "CREATE TABLE IF NOT EXISTS accounts(" + 
                     "id INTEGER PRIMARY KEY," +
@@ -33,6 +34,57 @@ database.exec(sqlCreate, (err) => {
     } else {
         console.log('Table created or already exists');
     }
+});
+
+const sqlCreateTeams = `CREATE TABLE IF NOT EXISTS Teams ( 
+    id INTEGER PRIMARY KEY AUTOINCREMENT, 
+    teamName TEXT NOT NULL, 
+    divName TEXT, 
+    city TEXT NOT NULL,
+    state TEXT NOT NULL, 
+    coachName TEXT NOT NULL)`;
+
+teamDatabase.run(sqlCreateTeams, (err) => {
+    if (err) {
+        console.error('Error creating team table: ', err.message);
+        return res.status(500).json({ message: 'Error creating table'});
+    }
+});
+
+
+const sqlCreatePlayer = `CREATE TABLE IF NOT EXISTS Players (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    firstName TEXT NOT NULL,
+    lastName TEXT NOT NULL,
+    position TEXT NOT NULL,
+    height TEXT NOT NULL,
+    weight DOUBLE NOT NULL,
+    teamId INTEGER NOT NULL,
+    FOREIGN KEY (teamId) REFERENCES Teams(id))`;
+
+teamDatabase.run(sqlCreatePlayer, (err) => {
+        if (err) {
+            console.error('Error creating Players table: ', err.message);
+            return res.status(500).json({ message: 'Error creating Players table'});
+        }
+});
+
+const sqlCreateSeason = `CREATE TABLE IF NOT EXISTS Seasons (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            teamId INTEGER NOT NULL,
+                            wins INTEGER DEFAULT 0,
+                            losses INTEGER DEFAULT 0,
+                            seasonName TEXT NOT NULL,
+                            leagueName TEXT NOT NULL,
+                            season TEXT NOT NULL,
+                            year INTEGER NOT NULL,
+                            FOREIGN KEY (teamId) REFERENCES Teams(id)
+                            )`
+teamDatabase.run(sqlCreateSeason, (err) => {
+        if (err) {
+            console.error("Error creating season table: ", err.message);
+            return res.status(500).json({ message: 'Error creating Seasons table'});
+        }
 });
 
 
@@ -162,15 +214,16 @@ app.get('/seasonDash', async (req, res) => {
 })
 
 app.get('/seasonInfo', async (req, res) => {
-    const seasonId = req.query.id;
+    const seasonId = req.query.sid;
+    const teamId = req.query.id;
 
-    if (!seasonId) {
+    if (!seasonId || !teamId) {
         return res.status(400).json({ error: 'No season ID provided'});
     }
 
-    const sqlSeasonQuery = "SELECT * FROM Seasons WHERE teamId = ?";
+    const sqlSeasonQuery = "SELECT * FROM Seasons WHERE id = ? AND teamId = ?";
 
-    teamDatabase.get(sqlSeasonQuery, [seasonId], (err, seasonRow) => {
+    teamDatabase.get(sqlSeasonQuery, [seasonId, teamId], (err, seasonRow) => {
         if (err) {
             console.error('Database error:', err);
             return res.status(500).json({ message: 'Cannot retrieve season data'});
@@ -236,6 +289,12 @@ app.get('/teamInfo', async (req, res) => {
     });
 });   
 });
+
+app.get('/teams/:teamId/seasons/:seasonId/createGame', async (req, res) => {
+    const { teamId, seasonId } = req.params;
+
+    res.render('createGame', { teamId, seasonId });
+})
 
 app.use(express.json());
 
@@ -312,109 +371,59 @@ app.post('/addAccount', (req, res) => {
 
 })
 
-const teamDatabase = new sqlite3.Database('./src/data/teamDatabase.db');
+
 app.post('/addTeam', (req, res) => {
     const {teamName, divName, teamCity, teamState, coachName} = req.body;
 
-    const sqlCreate = `CREATE TABLE IF NOT EXISTS Teams ( 
-    id INTEGER PRIMARY KEY AUTOINCREMENT, 
-    teamName TEXT NOT NULL, 
-    divName TEXT, 
-    city TEXT NOT NULL,
-    state TEXT NOT NULL, 
-    coachName TEXT NOT NULL)`;
+    
     const sqlInsert = `INSERT INTO Teams (teamName, divName, city, state, coachName)
     VALUES (?, ?, ?, ?, ?)`;
 
     const values = [teamName, divName, teamCity, teamState, coachName];
-
-    teamDatabase.run(sqlCreate, (err) => {
+    
+    teamDatabase.run(sqlInsert, values, function (err) {
         if (err) {
-            console.error('Error creating team table: ', err.message);
-            return res.status(500).json({ message: 'Error creating table'});
+            console.error('Error inserting team data: ', err.message);
+            return res.status(500).json({ message: 'Error inserting team data'});
         }
-        teamDatabase.run(sqlInsert, values, function (err) {
-            if (err) {
-                console.error('Error inserting team data: ', err.message);
-                return res.status(500).json({ message: 'Error inserting team data'});
-            }
-            res.status(201).json({ message: 'Team created successfully'});
-            teamid = teamid + 1;
-            
-            
+        res.status(201).json({ message: 'Team created successfully'});
+        // teamid = teamid + 1;       
         });
     });
 
-});
+
 
 app.post('/addPlayer', (req, res) => {
     const {firstName, lastName, position, height, weight, teamId} = req.body;
-
-    const sqlCreatePlayer = `CREATE TABLE IF NOT EXISTS Players (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    firstName TEXT NOT NULL,
-    lastName TEXT NOT NULL,
-    position TEXT NOT NULL,
-    height TEXT NOT NULL,
-    weight DOUBLE NOT NULL,
-    teamId INTEGER NOT NULL,
-    FOREIGN KEY (teamId) REFERENCES Teams(id))`;
 
     const sqlPlayerInsert = `INSERT INTO Players (firstName, lastName, position, height, weight, teamId)
     VALUES (?, ?, ?, ?, ?, ?)`;
     const values = [firstName, lastName, position, height, weight, teamId];
 
-    teamDatabase.run(sqlCreatePlayer, (err) => {
+    teamDatabase.run(sqlPlayerInsert, values, function(err) {
         if (err) {
-            console.error('Error creating Players table: ', err.message);
-            return res.status(500).json({ message: 'Error creating Players table'});
+            console.error('Error inserting player:', err.message);
+            return res.status(500).json({ message: 'Error inserting player'});
         }
-
-        teamDatabase.run(sqlPlayerInsert, values, function(err) {
-            if (err) {
-                console.error('Error inserting player:', err.message);
-                return res.status(500).json({ message: 'Error inserting player'});
-            }
-            res.status(201).json({ message: 'Player added successfully'});
-        })
-
+        res.status(201).json({ message: 'Player added successfully'});
     })
-});
+})
 
 app.post('/newSeason', async (req, res) => {
     const {teamId, seasonName, leagueName, season, year} = req.body;
-
-    const sqlCreateSeason = `CREATE TABLE IF NOT EXISTS Seasons (
-                            id INTEGER PRIMARY KEY AUTOINCREMENT,
-                            teamId INTEGER NOT NULL,
-                            wins INTEGER DEFAULT 0,
-                            losses INTEGER DEFAULT 0,
-                            seasonName TEXT NOT NULL,
-                            leagueName TEXT NOT NULL,
-                            season TEXT NOT NULL,
-                            year INTEGER NOT NULL,
-                            FOREIGN KEY (teamId) REFERENCES Teams(id)
-                            )`
-
+    
     const sqlSeasonInsert = `INSERT INTO Seasons (teamId, wins, losses, seasonName, leagueName, season, year)
                             VALUES (?, 0, 0, ?, ?, ?, ?)`;
     const values = [teamId, seasonName, leagueName, season, year];
 
-    teamDatabase.run(sqlCreateSeason, (err) => {
+    teamDatabase.run(sqlSeasonInsert, values, function(err) {
         if (err) {
-            console.error("Error creating season table: ", err.message);
-            return res.status(500).json({ message: 'Error creating Seasons table'});
+            console.error("Error inserting season:", err.message);
+            return res.status(500).json({ message: "Error inserting season"});
         }
-        teamDatabase.run(sqlSeasonInsert, values, function(err) {
-            if (err) {
-                console.error("Error inserting season:", err.message);
-                return res.status(500).json({ message: "Error inserting season"});
-            }
-            res.status(201).json({ message: "Season added successfully"});
-        })
-
+        res.status(201).json({ message: "Season added successfully"});
     })
-});
+})
 
 app.post('/startGame', async (req, res) => {
     const { opponent, location, date} = req.body;

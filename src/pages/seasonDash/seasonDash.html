@@ -33,42 +33,40 @@
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
-    const params = new URLSearchParams(window.location.search);
-    const seasonId = params.get('id');
+        const params = new URLSearchParams(window.location.search);
+        const seasonId = params.get('sid');
+        const teamId = params.get('id');
 
-    if (!seasonId) {
-        document.body.innerHTML = "<h2>No season ID provided.</h2>";
-        return;
-    }
+        if (!seasonId) {
+            document.body.innerHTML = "<h2>No season ID provided.</h2>";
+            return;
+        }
 
-    fetch(`/seasonInfo?id=${seasonId}`)
-        .then(res => res.json())
-        .then(data => {
-            console.log('Fetched season and team data:', data); // Check this in console
+        fetch(`/seasonInfo?id=${teamId}&sid=${seasonId}`)
+            .then(res => res.json())
+            .then(data => {
+                console.log('Fetched season and team data:', data); // Check this in console
 
-            // Assuming the data returned is an array (which it likely is based on the DB query)
-            if (data) {
-                const season = data; // Get the first item (season)
-                document.getElementById("seasonName").textContent = `${season.seasonName}`;
-                document.getElementById("leagueInfo").textContent = `League: ${season.leagueName} ~ Year: ${season.year}`;
-                document.getElementById("record").textContent = `Record: ${season.wins}W - ${season.losses}L`;
+                // Assuming the data returned is an array (which it likely is based on the DB query)
+                if (data) {
+                    const season = data; // Get the first item (season)
+                    document.getElementById("seasonName").textContent = `${season.seasonName}`;
+                    document.getElementById("leagueInfo").textContent = `League: ${season.leagueName} ~ Year: ${season.year}`;
+                    document.getElementById("record").textContent = `Record: ${season.wins}W - ${season.losses}L`;
 
-                const teamId = season.teamId;
-                const seasonId = season.id;
+                    const startGameLink = document.getElementById("startGameLink");
+                    startGameLink.href = `/teams/${teamId}/seasons/${seasonId}/createGame`;
 
-                const startGameLink = document.getElementById("startGameLink");
-                startGameLink.href = `/teams/${teamId}/seasons/${seasonId}/createGame`;
-
-            } else {
-                console.error('No season data available');
-                document.body.innerHTML = "<h3>No season data found</h3>";
-            }
-        })
-        .catch(err => {
-            console.error('Fetch error:', err);
-            document.body.innerHTML = "<h3>Error loading season data</h3>";
+                } else {
+                    console.error('No season data available');
+                    document.body.innerHTML = "<h3>No season data found</h3>";
+                }
+            })
+            .catch(err => {
+                console.error('Fetch error:', err);
+                document.body.innerHTML = "<h3>Error loading season data</h3>";
+            });
         });
-});
 
     </script>
 

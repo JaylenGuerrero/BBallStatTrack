@@ -108,7 +108,7 @@
                         season.forEach(seasonData => {
                             const seasonRow = document.createElement('tr');
                             seasonRow.innerHTML = `
-                            <td><a href="/seasonDash?id=${seasonData.teamId}">${seasonData.seasonName}</a></td>
+                            <td><a href="/seasonDash?id=${seasonData.teamId}&sid=${seasonData.id}">${seasonData.seasonName}</a></td>
                             <td>${seasonData.leagueName}</td>
                             <td>${seasonData.year}</td>
                             <td>${seasonData.wins}</td>
