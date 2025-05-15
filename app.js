@@ -524,6 +524,10 @@ app.post('/resetDatabase', (req, res) => {
     const sqlClearSeason = "DELETE FROM Seasons";
     const sqlClearSeq = "DELETE FROM sqlite_sequence WHERE name='Teams';DELETE FROM sqlite_sequence WHERE name='Players'";
     const sqlClearSeasonSeq = "DELETE FROM sqlite_sequence WHERE name='Seasons'";
+    const sqlClearPlayerStats = `DELETE FROM PlayerStats;
+                                DELETE FROM sqlite_sequence WHERE name='PlayerStats';
+                                DELETE FROM Games;
+                                DELETE FROM sqlite_sequence WHERE name='Games';`
 
     teamDatabase.run(sqlClearTeam, (err) => {
         if (err) {
@@ -554,6 +558,13 @@ app.post('/resetDatabase', (req, res) => {
                             console.error("Error clearing season sequence:", err.message);
                             return res.status(500).json({ message: 'Error clearing season sequence'});
                         }
+
+                        teamDatabase.exec(sqlClearPlayerStats, (err) => {
+                            if (err) {
+                                console.error("Error clearing playerStats and games sequence:", err.message);
+                                return res.status(500).json({ message: 'Error clearing playerStats and games sequence'});
+                            }
+                        })
 
                         res.status(201).json({ message: 'Databases cleared successfully'});
                     })

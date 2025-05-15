@@ -6,7 +6,7 @@
     <title>Game Dash</title>
     <meta name="description" content="Track a game page for BBallStatTrack"/>
     <meta name="author" content="Jaylen Guerrero"/>
-    <link rel="stylesheet" href="/pages/seasonDash/style/seasonDash.css">
+    <link rel="stylesheet" href="/pages/games/styles/trackGame.css">
     <link rel="stylesheet" href="/pages/style/nav.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,3 +14,50 @@
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
 
 </head>
+<body>
+    <div id="lineupPanel">
+        <h2>Current Lineup</h2>
+        <div id="playerList">
+            <!-- Player check box here -->
+        </div>
+    </div>
+
+
+
+
+    <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const pathSegments = window.location.pathname.split('/');
+    const teamId = pathSegments[2];
+    fetch(`/teamInfo?id=${teamId}`)
+      .then(res => res.json())
+      .then(data => {
+        const players = data.roster;
+        const playerList = document.getElementById("playerList");
+
+        players.forEach(player => {
+          const div = document.createElement("div");
+          div.classList.add("playerItem");
+
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = `player-${player.id}`;
+          checkbox.value = player.id;
+
+          const label = document.createElement("label");
+          label.htmlFor = checkbox.id;
+          label.textContent = `${player.firstName} ${player.lastName}`;
+
+          div.appendChild(checkbox);
+          div.appendChild(label);
+          playerList.appendChild(div);
+        });
+      })
+      .catch(err => {
+        console.error("Error loading team info:", err);
+      });
+  });
+</script>
+
+
+</body>

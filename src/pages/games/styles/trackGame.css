@@ -1,0 +1,13 @@
+#lineupPanel {
+    width: 200px;
+    height: 300px;
+    border: 1px solid black;
+    padding: 20px;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+#lineupPanel h2 {
+    margin-top: 0;
+    font-size: 15px;
+    text-align: center;
+}
