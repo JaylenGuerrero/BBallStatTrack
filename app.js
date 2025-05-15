@@ -239,6 +239,7 @@ app.get('/seasonInfo', async (req, res) => {
     }
 
     const sqlSeasonQuery = "SELECT * FROM Seasons WHERE id = ? AND teamId = ?";
+    const sqlGameQuery = "SELECT * FROM Games WHERE teamId = ? AND seasonId = ?";
 
     teamDatabase.get(sqlSeasonQuery, [seasonId, teamId], (err, seasonRow) => {
         if (err) {
@@ -250,7 +251,19 @@ app.get('/seasonInfo', async (req, res) => {
             return res.status(404).json({ error: 'Season not found'});
         }
 
-        res.json(seasonRow);
+        teamDatabase.all(sqlGameQuery, [teamId, seasonId], (err, gameRows) => {
+            if (err) {
+            console.error('Database error:', err);
+            return res.status(500).json({ message: 'Cannot retrieve season data'});
+            }
+
+            if (!gameRows) {
+                return res.status(404).json({ error: 'Season not found'});
+            }
+            res.json({season: seasonRow, games: gameRows});
+        })
+
+        
 
     })
 
@@ -311,6 +324,12 @@ app.get('/teams/:teamId/seasons/:seasonId/createGame', async (req, res) => {
     const { teamId, seasonId } = req.params;
     
     res.sendFile(__dirname + '/src/pages/games/createGame.html');
+})
+
+app.get('/teams/:teamId/seasons/:seasonId/gameDash', async (req, res) => {
+    const { teamId, seasonId} = req.params;
+
+    res.sendFile(__dirname + '/src/pages/games/trackGame.html');
 })
 
 app.use(express.json());

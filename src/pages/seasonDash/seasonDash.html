@@ -30,6 +30,19 @@
     <p id="leagueInfo"></p>
     <p id="record"></p>
     <a id="startGameLink" href="#">Start a game for this season</a>
+    <h2>Game log</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Location</th>
+                <th>Time</th>
+                <th>Opponent</th>
+                <th>Score</th>
+            </tr>
+        </thead>
+        <tbody id="gameLogTableBody">
+        </tbody>
+    </table>
 
     <script>
         window.addEventListener('DOMContentLoaded', () => {
@@ -49,13 +62,40 @@
 
                 // Assuming the data returned is an array (which it likely is based on the DB query)
                 if (data) {
-                    const season = data; // Get the first item (season)
+                    const season = data.season; // Get the first item (season)
+                    const games = data.games;
                     document.getElementById("seasonName").textContent = `${season.seasonName}`;
                     document.getElementById("leagueInfo").textContent = `League: ${season.leagueName} ~ Year: ${season.year}`;
                     document.getElementById("record").textContent = `Record: ${season.wins}W - ${season.losses}L`;
 
                     const startGameLink = document.getElementById("startGameLink");
                     startGameLink.href = `/teams/${teamId}/seasons/${seasonId}/createGame`;
+
+                    const gameLogTableBody = document.getElementById("gameLogTableBody");
+                    gameLogTableBody.innerHTML = ''; 
+
+                    games.forEach(game => {
+                        const row = document.createElement("tr");
+
+                        const locationCell = document.createElement("td");
+                        locationCell.textContent = game.location;
+
+                        const dateCell = document.createElement("td");
+                        dateCell.textContent = new Date(game.date).toLocaleDateString();
+
+                        const opponentCell = document.createElement("td");
+                        opponentCell.textContent = game.opponent;
+
+                        const resultCell = document.createElement("td");
+                        resultCell.textContent = game.result || "TBD";
+
+                        row.appendChild(locationCell);
+                        row.appendChild(dateCell);
+                        row.appendChild(opponentCell);
+                        row.appendChild(resultCell);
+
+                        gameLogTableBody.appendChild(row);
+                    });
 
                 } else {
                     console.error('No season data available');
