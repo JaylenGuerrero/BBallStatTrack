@@ -21,42 +21,120 @@
             <!-- Player check box here -->
         </div>
     </div>
+    <div id="playerCards">
+        <div id="playerInfo">
+
+        </div>
+        <div class="statButtons">
+
+        </div>
+
+    </div>
 
 
 
 
     <script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const pathSegments = window.location.pathname.split('/');
-    const teamId = pathSegments[2];
-    fetch(`/teamInfo?id=${teamId}`)
-      .then(res => res.json())
-      .then(data => {
-        const players = data.roster;
-        const playerList = document.getElementById("playerList");
+document.addEventListener("DOMContentLoaded", () => {
+  const pathSegments = window.location.pathname.split('/');
+  const teamId = pathSegments[2];
+  const playerList = document.getElementById("playerList");
+  const playerInfo = document.getElementById("playerInfo");
 
-        players.forEach(player => {
-          const div = document.createElement("div");
-          div.classList.add("playerItem");
+  fetch(`/teamInfo?id=${teamId}`)
+    .then(res => res.json())
+    .then(data => {
+      const players = data.roster;
 
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.id = `player-${player.id}`;
-          checkbox.value = player.id;
+      players.forEach(player => {
+        const div = document.createElement("div");
+        div.classList.add("playerItem");
 
-          const label = document.createElement("label");
-          label.htmlFor = checkbox.id;
-          label.textContent = `${player.firstName} ${player.lastName}`;
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.id = `player-${player.id}`;
+        checkbox.value = player.id;
+        checkbox.dataset.firstName = player.firstName;
+        checkbox.dataset.lastName = player.lastName;
 
-          div.appendChild(checkbox);
-          div.appendChild(label);
-          playerList.appendChild(div);
-        });
-      })
-      .catch(err => {
-        console.error("Error loading team info:", err);
+        const label = document.createElement("label");
+        label.htmlFor = checkbox.id;
+        label.textContent = `${player.firstName} ${player.lastName}`;
+
+        div.appendChild(checkbox);
+        div.appendChild(label);
+        playerList.appendChild(div);
       });
-  });
+
+      playerList.addEventListener('change', e => {
+        // Limit 5 players max
+        const checkedBoxes = playerList.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkedBoxes.length > 5) {
+          e.target.checked = false;
+          alert('Only 5 players can be selected at once');
+          return;
+        }
+        updatePlayerCards();
+      });
+    })
+    .catch(err => {
+      console.error("Error loading team info:", err);
+    });
+
+  function updatePlayerCards() {
+    playerInfo.innerHTML = '';
+
+    const checkedBoxes = playerList.querySelectorAll('input[type="checkbox"]:checked');
+
+    checkedBoxes.forEach(box => {
+      const firstName = box.dataset.firstName;
+      const lastName = box.dataset.lastName;
+      const playerId = box.value;
+
+      const card = document.createElement("div");
+      card.classList.add("player-card");
+      card.dataset.playerId = playerId;
+
+      const nameDiv = document.createElement("div");
+      nameDiv.classList.add("player-name");
+      nameDiv.textContent = `${firstName} ${lastName}`;
+      card.appendChild(nameDiv);
+
+      const statButtonDiv = document.createElement("div");
+      statButtonDiv.classList.add("stat-buttons");
+
+      const stats = [
+        { key: "2PtFg", label: "+2 Pt Fg" },
+        { key: "2PtFgMiss", label: "2 Pt Fg Miss" },
+        { key: "3PtFg", label: "+3 Pt Fg" },
+        { key: "3PtFgMiss", label: "3 Pt Fg Miss" },
+        { key: "assist", label: "+1 Assist" },
+        { key: "rebound", label: "+1 Rebound" },
+        { key: "steal", label: "+1 Steal" },
+        { key: "block", label: "+1 Block" },
+        { key: "turnover", label: "+1 Turnover" }
+      ];
+
+      stats.forEach(stat => {
+        const btn = document.createElement("button");
+        btn.classList.add("statBtn");
+        btn.dataset.stat = stat.key;
+        btn.textContent = stat.label;
+
+        btn.addEventListener('click', () => {
+          console.log(`Player ${firstName} ${lastName} scored stat: ${stat.key}`);
+          // You can add stat update logic here later
+        });
+
+        statButtonDiv.appendChild(btn);
+      });
+
+      card.appendChild(statButtonDiv);
+      playerInfo.appendChild(card);
+    });
+  }
+});
+
 </script>
 
 
