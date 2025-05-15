@@ -97,9 +97,11 @@
 
                 if (response.ok) {
                     console.log("Game created successfully");
+
+                    const gameId = result.gameId;
                     
                     setTimeout(() => {
-                        window.location.href = `/teams/${teamId}/seasons/${seasonId}/gameDash`;
+                        window.location.href = `/teams/${teamId}/seasons/${seasonId}/gameDash?gid=${gameId}`;
                     }, 1000);
                     
                 } else {

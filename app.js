@@ -104,7 +104,36 @@ teamDatabase.run(sqlCreateGames, (err) => {
     }
 })
 
-
+const sqlCreatePlayerStats = `CREATE TABLE IF NOT EXISTS PlayerStats (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            gameId INTEGER NOT NULL,
+                            playerId INTEGER NOT NULL,
+                            points INTEGER DEFAULT 0,
+                            rebounds INTEGER DEFAULT 0,
+                            assists INTEGER DEFAULT 0,
+                            steals INTEGER DEFAULT 0,
+                            blocks INTEGER DEFAULT 0,
+                            turnovers INTEGER DEFAULT 0,
+                            fgAttempts INTEGER DEFAULT 0,
+                            fgMades INTEGER DEFAULT 0,
+                            fgPercent REAL DEFAULT 0,
+                            threeAttempts INTEGER DEFAULT 0,
+                            threeMades INTEGER DEFAULT 0,
+                            threePercent REAL DEFAULT 0,
+                            minutesPlayed REAL DEFAULT 0,
+                            ftAttempts INTEGER DEFAULT 0,
+                            ftMades INTEGER DEFAULT 0,
+                            ftPercent REAL DEFAULT 0,
+                            personalFouls INTEGER DEFAULT 0,
+                            FOREIGN KEY (gameId) REFERENCES Games(id),
+                            FOREIGN KEY (playerId) REFERENCES Players(id)
+                            )`;
+teamDatabase.run(sqlCreatePlayerStats, (err) => {
+    if (err) {
+        console.error("Error creating Player Stats table: ", err.message);
+        res.status(500).json({ message: 'Error creating Player Stats table'});
+    }
+})
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/src/pages/index/index.html');
@@ -474,8 +503,13 @@ app.post('/startGame', async (req, res) => {
         INSERT INTO Games (seasonId, teamId, opponent, date, location, result)
         VALUES (?, ?, ?, ?, ?, ?)`;
 
-        await teamDatabase.run(sqlNewGame, [seasonId, teamId, opponent, date, location, null]);
-        res.json({ message: 'Game created successfully', gameId: this.lastID });
+         teamDatabase.run(sqlNewGame, [seasonId, teamId, opponent, date, location, null], function (err) {
+            if (err) {
+                console.error(err);
+                return res.status(500).json({ message: 'Server error, could not start game' });
+            }
+            res.json({ message: 'Game created successfully', gameId: this.lastID });
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error, could not start game' });
