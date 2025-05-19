@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial=scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Game Dash</title>
     <meta name="description" content="Track a game page for BBallStatTrack"/>
     <meta name="author" content="Jaylen Guerrero"/>
@@ -15,167 +15,227 @@
 
 </head>
 <body>
-    <div id="mainContainer">
-        <div id="lineupPanel">
-            <h2>Current Lineup</h2>
-            <div id="playerList">
-                <!-- Player check box here -->
-            </div>
-        </div>
-        <div id="playerCards">
-            <div id="playerInfo">
-
-            </div>
-            <div class="statButtons">
-
-            </div>
-
-        </div>
+  <div id="mainContainer">
+    <!-- Lineup panel -->
+    <div id="lineupPanel">
+      <h2>Current Lineup</h2>
+      <div id="playerList">
+        <!-- Player checkboxes will be dynamically injected here -->
+      </div>
     </div>
+
+    <!-- Player cards and stats -->
+    <div id="playerCards">
+      <div id="playerInfo">
+        <!-- Dynamic player cards go here -->
+      </div>
+      <div class="statButtons">
+        <!-- Stat buttons per player go here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Fixed scoreboard at the bottom of the page -->
+  <div id="scoreboard">
+    <div id="gameInfo">
+      <div class="score-section">
+        <span>Team A:</span> <span id="teamAScore">0</span>
+      </div>
+      <div class="score-section">
+        <span>Team B:</span> <span id="teamBScore">0</span>
+      </div>
+      <div id="gameTimer">12:00</div>
+      <button id="startStopBtn">Start</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+  </div>
 
 
 
 
     <script>
-document.addEventListener("DOMContentLoaded", () => {
-  const playerStats = {};
-  const pathSegments = window.location.pathname.split('/');
-  const teamId = pathSegments[2];
-  const playerList = document.getElementById("playerList");
-  const playerInfo = document.getElementById("playerInfo");
+      let timerInterval = null;
+      let totalTime = 12 * 60; // 12 minutes in seconds
+      let isRunning = false;
 
-  fetch(`/teamInfo?id=${teamId}`)
-    .then(res => res.json())
-    .then(data => {
-      const players = data.roster;
+      function updateTimerDisplay() {
+        const minutes = Math.floor(totalTime / 60).toString().padStart(2, '0');
+        const seconds = (totalTime % 60).toString().padStart(2, '0');
+        document.getElementById("gameTimer").textContent = `${minutes}:${seconds}`;
+      }
 
-      players.forEach(player => {
-        const div = document.createElement("div");
-        div.classList.add("playerItem");
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.id = `player-${player.id}`;
-        checkbox.value = player.id;
-        checkbox.dataset.firstName = player.firstName;
-        checkbox.dataset.lastName = player.lastName;
-
-        const label = document.createElement("label");
-        label.htmlFor = checkbox.id;
-        label.textContent = `${player.firstName} ${player.lastName}`;
-
-        div.appendChild(checkbox);
-        div.appendChild(label);
-        playerList.appendChild(div);
-      });
-
-      playerList.addEventListener('change', e => {
-        // Limit 5 players max
-        const checkedBoxes = playerList.querySelectorAll('input[type="checkbox"]:checked');
-        if (checkedBoxes.length > 5) {
-          e.target.checked = false;
-          alert('Only 5 players can be selected at once');
-          return;
+      function startStopTimer() {
+        if (isRunning) {
+          clearInterval(timerInterval);
+          isRunning = false;
+          document.getElementById("startStopBtn").textContent = "Start";
+        } else {
+          timerInterval = setInterval(() => {
+            if (totalTime > 0) {
+              totalTime--;
+              updateTimerDisplay();
+            } else {
+              clearInterval(timerInterval);
+              isRunning = false;
+              alert("Period ended!");
+            }
+          }, 1000);
+          isRunning = true;
+          document.getElementById("startStopBtn").textContent = "Pause";
         }
-        updatePlayerCards();
-      });
-    })
-    .catch(err => {
-      console.error("Error loading team info:", err);
-    });
+      }
 
-  function renderStats(stats) {
-    return Object.entries(stats)
-      .map(([key, value]) => `<div><strong>${key}:</strong> ${value}</div>`)
-      .join('');
-}
+      function resetTimer() {
+        clearInterval(timerInterval);
+        totalTime = 12 * 60;
+        isRunning = false;
+        updateTimerDisplay();
+        document.getElementById("startStopBtn").textContent = "Start";
+      }
 
-  function updatePlayerCards() {
-    playerInfo.innerHTML = '';
 
-    const checkedBoxes = playerList.querySelectorAll('input[type="checkbox"]:checked');
+      document.addEventListener("DOMContentLoaded", () => {
+      updateTimerDisplay();
+      document.getElementById("startStopBtn").addEventListener("click", startStopTimer);
+      document.getElementById("resetBtn").addEventListener("click", resetTimer);
+      const playerStats = {};
+      const pathSegments = window.location.pathname.split('/');
+      const teamId = pathSegments[2];
+      const playerList = document.getElementById("playerList");
+      const playerInfo = document.getElementById("playerInfo");
 
-    
+      fetch(`/teamInfo?id=${teamId}`)
+        .then(res => res.json())
+        .then(data => {
+          const players = data.roster;
 
-    checkedBoxes.forEach(box => {
-      const firstName = box.dataset.firstName;
-      const lastName = box.dataset.lastName;
-      const playerId = box.value;
+          players.forEach(player => {
+            const div = document.createElement("div");
+            div.classList.add("playerItem");
 
-      if (!playerStats[playerId]) {
-      playerStats[playerId] = {
-        "2PtFg": 0,
-        "2PtFgMiss": 0,
-        "3PtFg": 0,
-        "3PtFgMiss": 0,
-        "assist": 0,
-        "rebound": 0,
-        "steal": 0,
-        "block": 0,
-        "turnover": 0,
-        points: 0,
-        fgMade: 0,
-        fgMissed: 0
-      };
-    }
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.id = `player-${player.id}`;
+            checkbox.value = player.id;
+            checkbox.dataset.firstName = player.firstName;
+            checkbox.dataset.lastName = player.lastName;
 
-      const card = document.createElement("div");
-      card.classList.add("player-card");
-      card.dataset.playerId = playerId;
+            const label = document.createElement("label");
+            label.htmlFor = checkbox.id;
+            label.textContent = `${player.firstName} ${player.lastName}`;
 
-      const nameDiv = document.createElement("div");
-      nameDiv.classList.add("player-name");
-      nameDiv.textContent = `${firstName} ${lastName}`;
-      card.appendChild(nameDiv);
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            playerList.appendChild(div);
+          });
 
-      const statDisplay = document.createElement("div");
-      statDisplay.classList.add("stat-display");
-      statDisplay.innerHTML = renderStats(playerStats[playerId]);
-      card.appendChild(statDisplay);
-
-      const statButtonDiv = document.createElement("div");
-      statButtonDiv.classList.add("stat-buttons");
-
-      const stats = [
-        { key: "2PtFg", label: "+2 Pt Fg", points: 2, made: true },
-        { key: "2PtFgMiss", label: "2 Pt Fg Miss", missed: true },
-        { key: "3PtFg", label: "+3 Pt Fg", points: 3, made: true },
-        { key: "3PtFgMiss", label: "3 Pt Fg Miss", missed: true },
-        { key: "assist", label: "+1 Assist" },
-        { key: "rebound", label: "+1 Rebound" },
-        { key: "steal", label: "+1 Steal" },
-        { key: "block", label: "+1 Block" },
-        { key: "turnover", label: "+1 Turnover" }
-      ];
-
-      stats.forEach(stat => {
-        const btn = document.createElement("button");
-        btn.classList.add("statBtn");
-        btn.dataset.stat = stat.key;
-        btn.textContent = stat.label;
-
-        btn.addEventListener('click', () => {
-          playerStats[playerId][stat.key]++;
-
-          if (stat.made) {
-            playerStats[playerId].points += stat.points;
-            playerStats[playerId].fgMade++;
-          } else if (stat.missed) {
-            playerStats[playerId].fgMissed++;
-          }
-          statDisplay.innerHTML = renderStats(playerStats[playerId]);
-          console.log(`Player ${firstName} ${lastName} scored stat: ${stat.key}`);
-          // You can add stat update logic here later
+          playerList.addEventListener('change', e => {
+            // Limit 5 players max
+            const checkedBoxes = playerList.querySelectorAll('input[type="checkbox"]:checked');
+            if (checkedBoxes.length > 5) {
+              e.target.checked = false;
+              alert('Only 5 players can be selected at once');
+              return;
+            }
+            updatePlayerCards();
+          });
+        })
+        .catch(err => {
+          console.error("Error loading team info:", err);
         });
 
-        statButtonDiv.appendChild(btn);
-      });
+      function renderStats(stats) {
+        return Object.entries(stats)
+          .map(([key, value]) => `<div><strong>${key}:</strong> ${value}</div>`)
+          .join('');
+    }
 
-      card.appendChild(statButtonDiv);
-      playerInfo.appendChild(card);
+      function updatePlayerCards() {
+        playerInfo.innerHTML = '';
+
+        const checkedBoxes = playerList.querySelectorAll('input[type="checkbox"]:checked');
+
+        
+
+        checkedBoxes.forEach(box => {
+          const firstName = box.dataset.firstName;
+          const lastName = box.dataset.lastName;
+          const playerId = box.value;
+
+          if (!playerStats[playerId]) {
+          playerStats[playerId] = {
+            "2PtFg": 0,
+            "2PtFgMiss": 0,
+            "3PtFg": 0,
+            "3PtFgMiss": 0,
+            "assist": 0,
+            "rebound": 0,
+            "steal": 0,
+            "block": 0,
+            "turnover": 0,
+            points: 0,
+            fgMade: 0,
+            fgMissed: 0
+          };
+        }
+
+          const card = document.createElement("div");
+          card.classList.add("player-card");
+          card.dataset.playerId = playerId;
+
+          const nameDiv = document.createElement("div");
+          nameDiv.classList.add("player-name");
+          nameDiv.textContent = `${firstName} ${lastName}`;
+          card.appendChild(nameDiv);
+
+          const statDisplay = document.createElement("div");
+          statDisplay.classList.add("stat-display");
+          statDisplay.innerHTML = renderStats(playerStats[playerId]);
+          card.appendChild(statDisplay);
+
+          const statButtonDiv = document.createElement("div");
+          statButtonDiv.classList.add("stat-buttons");
+
+          const stats = [
+            { key: "2PtFg", label: "+2 Pt Fg", points: 2, made: true },
+            { key: "2PtFgMiss", label: "2 Pt Fg Miss", missed: true },
+            { key: "3PtFg", label: "+3 Pt Fg", points: 3, made: true },
+            { key: "3PtFgMiss", label: "3 Pt Fg Miss", missed: true },
+            { key: "assist", label: "+1 Assist" },
+            { key: "rebound", label: "+1 Rebound" },
+            { key: "steal", label: "+1 Steal" },
+            { key: "block", label: "+1 Block" },
+            { key: "turnover", label: "+1 Turnover" }
+          ];
+
+          stats.forEach(stat => {
+            const btn = document.createElement("button");
+            btn.classList.add("statBtn");
+            btn.dataset.stat = stat.key;
+            btn.textContent = stat.label;
+
+            btn.addEventListener('click', () => {
+              playerStats[playerId][stat.key]++;
+
+              if (stat.made) {
+                playerStats[playerId].points += stat.points;
+                playerStats[playerId].fgMade++;
+              } else if (stat.missed) {
+                playerStats[playerId].fgMissed++;
+              }
+              statDisplay.innerHTML = renderStats(playerStats[playerId]);
+              console.log(`Player ${firstName} ${lastName} scored stat: ${stat.key}`);
+              // You can add stat update logic here later
+            });
+
+            statButtonDiv.appendChild(btn);
+          });
+
+          card.appendChild(statButtonDiv);
+          playerInfo.appendChild(card);
+        });
+      }
     });
-  }
-});
 
 </script>
 
