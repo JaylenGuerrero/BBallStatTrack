@@ -94,6 +94,7 @@ body {
   justify-content: center;
   gap: 8px;
   width: 100%;
+  margin-top: 10px;
 }
 
 /* Stat buttons styling */
@@ -119,3 +120,11 @@ body {
 .statBtn:active {
   background-color: #003f7f;
 }
+.stat-display {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #333;
+  text-align: left;
+  width: 100%;
+}
+

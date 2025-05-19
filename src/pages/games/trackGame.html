@@ -38,6 +38,7 @@
 
     <script>
 document.addEventListener("DOMContentLoaded", () => {
+  const playerStats = {};
   const pathSegments = window.location.pathname.split('/');
   const teamId = pathSegments[2];
   const playerList = document.getElementById("playerList");
@@ -83,15 +84,40 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Error loading team info:", err);
     });
 
+  function renderStats(stats) {
+    return Object.entries(stats)
+      .map(([key, value]) => `<div><strong>${key}:</strong> ${value}</div>`)
+      .join('');
+}
+
   function updatePlayerCards() {
     playerInfo.innerHTML = '';
 
     const checkedBoxes = playerList.querySelectorAll('input[type="checkbox"]:checked');
 
+    
+
     checkedBoxes.forEach(box => {
       const firstName = box.dataset.firstName;
       const lastName = box.dataset.lastName;
       const playerId = box.value;
+
+      if (!playerStats[playerId]) {
+      playerStats[playerId] = {
+        "2PtFg": 0,
+        "2PtFgMiss": 0,
+        "3PtFg": 0,
+        "3PtFgMiss": 0,
+        "assist": 0,
+        "rebound": 0,
+        "steal": 0,
+        "block": 0,
+        "turnover": 0,
+        points: 0,
+        fgMade: 0,
+        fgMissed: 0
+      };
+    }
 
       const card = document.createElement("div");
       card.classList.add("player-card");
@@ -102,14 +128,19 @@ document.addEventListener("DOMContentLoaded", () => {
       nameDiv.textContent = `${firstName} ${lastName}`;
       card.appendChild(nameDiv);
 
+      const statDisplay = document.createElement("div");
+      statDisplay.classList.add("stat-display");
+      statDisplay.innerHTML = renderStats(playerStats[playerId]);
+      card.appendChild(statDisplay);
+
       const statButtonDiv = document.createElement("div");
       statButtonDiv.classList.add("stat-buttons");
 
       const stats = [
-        { key: "2PtFg", label: "+2 Pt Fg" },
-        { key: "2PtFgMiss", label: "2 Pt Fg Miss" },
-        { key: "3PtFg", label: "+3 Pt Fg" },
-        { key: "3PtFgMiss", label: "3 Pt Fg Miss" },
+        { key: "2PtFg", label: "+2 Pt Fg", points: 2, made: true },
+        { key: "2PtFgMiss", label: "2 Pt Fg Miss", missed: true },
+        { key: "3PtFg", label: "+3 Pt Fg", points: 3, made: true },
+        { key: "3PtFgMiss", label: "3 Pt Fg Miss", missed: true },
         { key: "assist", label: "+1 Assist" },
         { key: "rebound", label: "+1 Rebound" },
         { key: "steal", label: "+1 Steal" },
@@ -124,6 +155,15 @@ document.addEventListener("DOMContentLoaded", () => {
         btn.textContent = stat.label;
 
         btn.addEventListener('click', () => {
+          playerStats[playerId][stat.key]++;
+
+          if (stat.made) {
+            playerStats[playerId].points += stat.points;
+            playerStats[playerId].fgMade++;
+          } else if (stat.missed) {
+            playerStats[playerId].fgMissed++;
+          }
+          statDisplay.innerHTML = renderStats(playerStats[playerId]);
           console.log(`Player ${firstName} ${lastName} scored stat: ${stat.key}`);
           // You can add stat update logic here later
         });
